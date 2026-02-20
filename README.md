@@ -50,7 +50,4 @@ You can also use `/Users/rylandgross/Documents/MyStuff/Archive/graphtotex/CITATI
 
 ## Copyright
 
-Copyright (c) 2026 Ryland Gross. All rights reserved.
-
-No part of this repository may be reproduced, distributed, or transmitted in any form or by any means
-without the prior written permission of the copyright holder, except as permitted by applicable law.
+Copyright (c) 2026 Ryland Gross. MIT License

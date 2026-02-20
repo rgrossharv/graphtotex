@@ -170,11 +170,25 @@ export default function App() {
       </main>
 
       <footer className="app-footer">
-        <span>Created by Ryland Gross</span>
-        <a href="https://github.com/rgrossharv/graphtotex" target="_blank" rel="noreferrer">
-          GraphToTeX Repository
-        </a>
-      </footer>
+  <span>
+    Created by{' '}
+    <a
+      href="https://rgrossharv.github.io/rylandgrossgithub/"
+      target="_blank"
+      rel="noreferrer"
+    >
+      Ryland Gross
+    </a>
+  </span>
+
+  <a
+    href="https://github.com/rgrossharv/graphtotex"
+    target="_blank"
+    rel="noreferrer"
+  >
+    GraphToTeX Repository
+  </a>
+</footer>
 
       <TikzModal isOpen={isTikzOpen} tikzCode={tikzCode} onClose={() => setIsTikzOpen(false)} />
     </div>

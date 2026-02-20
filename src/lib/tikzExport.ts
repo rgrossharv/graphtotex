@@ -192,7 +192,7 @@ export function generateTikzExport({ expressions, viewport, settings }: TikzExpo
     '% Scale tip: add scale=<value> in tikzpicture options, e.g. \\begin{tikzpicture}[scale=0.8, ...]',
     '% Required packages: \\usepackage{tikz} and \\usetikzlibrary{arrows.meta}',
     '% Note: trig/inverse trig expressions are exported as sampled coordinates to preserve radian behavior.',
-    '\\begin{tikzpicture}[line cap=round, line join=round, >=Stealth]',
+    '\\begin{tikzpicture}[scale=0.6, line cap=round, line join=round, >=Stealth]',
     `\\clip (${formatNumber(viewport.xMin)},${formatNumber(viewport.yMin)}) rectangle (${formatNumber(
       viewport.xMax
     )},${formatNumber(viewport.yMax)});`

@@ -171,7 +171,7 @@ export default function App() {
 
       <footer className="app-footer">
         <span>Created by Ryland Gross</span>
-        <a href="https://github.com/rylandgross/graphtotex" target="_blank" rel="noreferrer">
+        <a href="https://github.com/rgrossharv/graphtotex" target="_blank" rel="noreferrer">
           GraphToTeX Repository
         </a>
       </footer>

@@ -41,7 +41,7 @@ BibTeX:
   author = {Gross, Ryland},
   title = {GraphToTeX: Interactive graphing calculator with TikZ export},
   year = {2026},
-  url = {WIP},
+  url = {https://github.com/rgrossharv/graphtotex},
   note = {Built with Codex assistance}
 }
 ```

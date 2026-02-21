@@ -4,11 +4,11 @@ GraphToTeX is an app that graphs 2D and 3D expressions and exports what you see 
 
 ## Project Note
 
-This project was vibecoded with follow-up adjustments and human testing.
+This project was vibecoded with follow-up adjustments and human testing for bugs and accuracy.
 
 ## Citation
 
-If you use GraphToTeX in homework, reports, notes, or other writeups, and you need cite it (definitely don't have to in my book) just use one of the following.
+If you used GraphToTeX in homeworks, reports, etc, and you have to cite it for school or just want to (definitely don't have to in my book) use one of the following.
 
 Plain text:
 

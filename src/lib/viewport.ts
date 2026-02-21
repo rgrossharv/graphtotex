@@ -3,8 +3,8 @@ import type { Viewport } from '../types';
 export const DEFAULT_VIEWPORT: Viewport = {
   xMin: -10,
   xMax: 10,
-  yMin: -8,
-  yMax: 8
+  yMin: -10,
+  yMax: 10
 };
 
 const MIN_SPAN = 1e-3;

@@ -1,10 +1,11 @@
 interface TikzModalProps {
   isOpen: boolean;
   tikzCode: string;
+  variant?: '2d' | '3d';
   onClose: () => void;
 }
 
-export default function TikzModal({ isOpen, tikzCode, onClose }: TikzModalProps) {
+export default function TikzModal({ isOpen, tikzCode, variant = '2d', onClose }: TikzModalProps) {
   if (!isOpen) {
     return null;
   }
@@ -22,7 +23,7 @@ export default function TikzModal({ isOpen, tikzCode, onClose }: TikzModalProps)
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = 'graphtotex-export.tex';
+    anchor.download = variant === '3d' ? 'graphtotex-export-3d.tex' : 'graphtotex-export-2d.tex';
     anchor.click();
     URL.revokeObjectURL(url);
   };
@@ -37,7 +38,16 @@ export default function TikzModal({ isOpen, tikzCode, onClose }: TikzModalProps)
           </button>
         </div>
         <p className="modal-note">
-          Requires <code>tikz</code>. Trig expressions are exported as sampled coordinates for radian consistency.
+          {variant === '3d' ? (
+            <>
+              Requires <code>pgfplots</code> (<code>\usepackage{'{'}pgfplots{'}'}</code>). Exported surfaces use
+              translucent patches.
+            </>
+          ) : (
+            <>
+              Requires <code>tikz</code>. Trig expressions are exported as sampled coordinates for radian consistency.
+            </>
+          )}
         </p>
         <textarea readOnly value={tikzCode} rows={20} className="tikz-textarea" />
         <div className="modal-actions">

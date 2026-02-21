@@ -4,10 +4,8 @@ GraphToTeX is an app that graphs 2D expressions and exports what you see to TikZ
 
 ## Project Note
 
-I made GraphToTex with help from Codex to help me do my homework. Hopefully you will like it too!
+This project was vibecoded with follow-up adjustments and human testing.
 I plan to add a 3D implementation in a future version.
-
-The rest of the README is written by Codex
 
 ## Features
 

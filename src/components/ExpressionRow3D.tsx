@@ -1,18 +1,18 @@
 import { useMemo, useState } from 'react';
-import type { Expression, PreparedExpression } from '../types';
+import type { Expression3D, PreparedExpression3D } from '../types';
 import { renderMathPreview } from '../lib/formatting';
 
-interface ExpressionRowProps {
-  expression: PreparedExpression;
+interface ExpressionRow3DProps {
+  expression: PreparedExpression3D;
   index: number;
   total: number;
-  onChange: (id: string, patch: Partial<Expression>) => void;
+  onChange: (id: string, patch: Partial<Expression3D>) => void;
   onRemove: (id: string) => void;
   onMoveUp: (id: string) => void;
   onMoveDown: (id: string) => void;
 }
 
-export default function ExpressionRow({
+export default function ExpressionRow3D({
   expression,
   index,
   total,
@@ -20,7 +20,7 @@ export default function ExpressionRow({
   onRemove,
   onMoveUp,
   onMoveDown
-}: ExpressionRowProps) {
+}: ExpressionRow3DProps) {
   const [showSettings, setShowSettings] = useState(false);
 
   const previewHtml = useMemo(
@@ -34,12 +34,12 @@ export default function ExpressionRow({
         <button
           className="swatch"
           style={{ backgroundColor: expression.color }}
-          title="Expression color"
-          aria-label="Expression color"
+          title="Surface color"
+          aria-label="Surface color"
         />
         <input
           className="expr-input"
-          placeholder="Type f(x) or equation, e.g. sin(x), x^2, y^2+x^2=1"
+          placeholder="Type z=f(x,y), e.g. sin(sqrt(x^2+y^2))"
           value={expression.rawInput}
           onChange={(event) => onChange(expression.id, { rawInput: event.target.value })}
         />
@@ -47,19 +47,14 @@ export default function ExpressionRow({
           <button
             className={`icon-btn visibility-btn ${expression.visible ? 'is-on' : ''}`}
             onClick={() => onChange(expression.id, { visible: !expression.visible })}
-            title={expression.visible ? 'Hide expression' : 'Show expression'}
+            title={expression.visible ? 'Hide surface' : 'Show surface'}
           >
             {expression.visible ? 'ON' : 'OFF'}
           </button>
           <button className="icon-btn" onClick={() => setShowSettings((v) => !v)} title="Settings">
             CFG
           </button>
-          <button
-            className="icon-btn"
-            onClick={() => onMoveUp(expression.id)}
-            disabled={index === 0}
-            title="Move up"
-          >
+          <button className="icon-btn" onClick={() => onMoveUp(expression.id)} disabled={index === 0} title="Move up">
             UP
           </button>
           <button
@@ -70,7 +65,7 @@ export default function ExpressionRow({
           >
             DN
           </button>
-          <button className="icon-btn danger" onClick={() => onRemove(expression.id)} title="Delete expression">
+          <button className="icon-btn danger" onClick={() => onRemove(expression.id)} title="Delete surface">
             DEL
           </button>
         </div>
@@ -83,29 +78,47 @@ export default function ExpressionRow({
       {showSettings && (
         <div className="expr-settings">
           <label>
-            Domain min
+            x min
             <input
               type="number"
-              value={expression.domainMin}
-              onChange={(event) => onChange(expression.id, { domainMin: event.target.value })}
+              value={expression.domainXMin}
+              onChange={(event) => onChange(expression.id, { domainXMin: event.target.value })}
               placeholder="auto"
             />
           </label>
           <label>
-            Domain max
+            x max
             <input
               type="number"
-              value={expression.domainMax}
-              onChange={(event) => onChange(expression.id, { domainMax: event.target.value })}
+              value={expression.domainXMax}
+              onChange={(event) => onChange(expression.id, { domainXMax: event.target.value })}
               placeholder="auto"
             />
           </label>
           <label>
-            Samples ({expression.samples})
+            y min
+            <input
+              type="number"
+              value={expression.domainYMin}
+              onChange={(event) => onChange(expression.id, { domainYMin: event.target.value })}
+              placeholder="auto"
+            />
+          </label>
+          <label>
+            y max
+            <input
+              type="number"
+              value={expression.domainYMax}
+              onChange={(event) => onChange(expression.id, { domainYMax: event.target.value })}
+              placeholder="auto"
+            />
+          </label>
+          <label>
+            Mesh ({expression.samples})
             <input
               type="range"
-              min={50}
-              max={2000}
+              min={80}
+              max={4200}
               step={10}
               value={expression.samples}
               onChange={(event) =>
@@ -119,8 +132,8 @@ export default function ExpressionRow({
             Thickness ({expression.lineWidth.toFixed(1)} px)
             <input
               type="range"
-              min={1}
-              max={8}
+              min={0.5}
+              max={4}
               step={0.5}
               value={expression.lineWidth}
               onChange={(event) =>
@@ -144,7 +157,7 @@ export default function ExpressionRow({
               checked={expression.dashed}
               onChange={(event) => onChange(expression.id, { dashed: event.target.checked })}
             />
-            Dashed line
+            Dashed wireframe
           </label>
         </div>
       )}

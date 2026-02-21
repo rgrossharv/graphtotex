@@ -1,19 +1,19 @@
 import { useEffect, useState, type KeyboardEvent } from 'react';
-import type { GraphSettings, Viewport } from '../types';
+import type { GraphSettings3D, Viewport3D } from '../types';
 import { formatNumber } from '../lib/formatting';
 
-interface ControlsBarProps {
-  viewport: Viewport;
-  settings: GraphSettings;
+interface ControlsBar3DProps {
+  viewport: Viewport3D;
+  settings: GraphSettings3D;
   onAddExpression: () => void;
   onExport: () => void;
   onResetView: () => void;
   onLoadExample: (example: string) => void;
-  onSettingsChange: (patch: Partial<GraphSettings>) => void;
-  onViewportSubmit: (next: Viewport) => void;
+  onSettingsChange: (patch: Partial<GraphSettings3D>) => void;
+  onViewportSubmit: (next: Viewport3D) => void;
 }
 
-export default function ControlsBar({
+export default function ControlsBar3D({
   viewport,
   settings,
   onAddExpression,
@@ -22,12 +22,14 @@ export default function ControlsBar({
   onLoadExample,
   onSettingsChange,
   onViewportSubmit
-}: ControlsBarProps) {
+}: ControlsBar3DProps) {
   const [bounds, setBounds] = useState({
     xMin: formatNumber(viewport.xMin),
     xMax: formatNumber(viewport.xMax),
     yMin: formatNumber(viewport.yMin),
-    yMax: formatNumber(viewport.yMax)
+    yMax: formatNumber(viewport.yMax),
+    zMin: formatNumber(viewport.zMin),
+    zMax: formatNumber(viewport.zMax)
   });
   const [boundsError, setBoundsError] = useState<string | null>(null);
 
@@ -36,35 +38,44 @@ export default function ControlsBar({
       xMin: formatNumber(viewport.xMin),
       xMax: formatNumber(viewport.xMax),
       yMin: formatNumber(viewport.yMin),
-      yMax: formatNumber(viewport.yMax)
+      yMax: formatNumber(viewport.yMax),
+      zMin: formatNumber(viewport.zMin),
+      zMax: formatNumber(viewport.zMax)
     });
-  }, [viewport.xMin, viewport.xMax, viewport.yMin, viewport.yMax]);
+  }, [viewport.xMin, viewport.xMax, viewport.yMin, viewport.yMax, viewport.zMin, viewport.zMax]);
 
   const submitBounds = () => {
     const parsed = {
       xMin: Number.parseFloat(bounds.xMin),
       xMax: Number.parseFloat(bounds.xMax),
       yMin: Number.parseFloat(bounds.yMin),
-      yMax: Number.parseFloat(bounds.yMax)
+      yMax: Number.parseFloat(bounds.yMax),
+      zMin: Number.parseFloat(bounds.zMin),
+      zMax: Number.parseFloat(bounds.zMax)
     };
 
     if (
       !Number.isFinite(parsed.xMin) ||
       !Number.isFinite(parsed.xMax) ||
       !Number.isFinite(parsed.yMin) ||
-      !Number.isFinite(parsed.yMax)
+      !Number.isFinite(parsed.yMax) ||
+      !Number.isFinite(parsed.zMin) ||
+      !Number.isFinite(parsed.zMax)
     ) {
       setBoundsError('Bounds must be valid numbers.');
       return;
     }
 
-    if (parsed.xMax <= parsed.xMin || parsed.yMax <= parsed.yMin) {
+    if (parsed.xMax <= parsed.xMin || parsed.yMax <= parsed.yMin || parsed.zMax <= parsed.zMin) {
       setBoundsError('Max bound must be greater than min bound on each axis.');
       return;
     }
 
     setBoundsError(null);
-    onViewportSubmit(parsed);
+    onViewportSubmit({
+      ...viewport,
+      ...parsed
+    });
   };
 
   const onBoundsKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -75,8 +86,8 @@ export default function ControlsBar({
 
   return (
     <div className="controls-bar">
-      <button onClick={onAddExpression}>+ Add Expression</button>
-      <button onClick={onExport}>Export TikZ</button>
+      <button onClick={onAddExpression}>+ Add Surface</button>
+      <button onClick={onExport}>Export TikZ 3D</button>
       <button onClick={onResetView}>Reset View</button>
 
       <label>
@@ -85,10 +96,10 @@ export default function ControlsBar({
           <option value="" disabled>
             Choose
           </option>
-          <option value="parabola">Parabola + line</option>
-          <option value="sine">Sine + cosine</option>
-          <option value="crra">CRRA style power</option>
-          <option value="mixed">Rational + exponential</option>
+          <option value="paraboloid">Paraboloid</option>
+          <option value="saddle">Saddle</option>
+          <option value="ripples">Circular ripples</option>
+          <option value="mixed">Wave + bowl</option>
         </select>
       </label>
 
@@ -111,15 +122,15 @@ export default function ControlsBar({
       <label className="checkbox-row inline">
         <input
           type="checkbox"
-          checked={settings.showTicks}
-          onChange={(event) => onSettingsChange({ showTicks: event.target.checked })}
+          checked={settings.showBox}
+          onChange={(event) => onSettingsChange({ showBox: event.target.checked })}
         />
-        Ticks
+        Box
       </label>
 
       <div className="viewport-chip">
-        x:[{formatNumber(viewport.xMin)}, {formatNumber(viewport.xMax)}] y:[{formatNumber(viewport.yMin)},{' '}
-        {formatNumber(viewport.yMax)}]
+        x:[{formatNumber(viewport.xMin)}, {formatNumber(viewport.xMax)}] y:[{formatNumber(viewport.yMin)},
+        {formatNumber(viewport.yMax)}] z:[{formatNumber(viewport.zMin)}, {formatNumber(viewport.zMax)}]
       </div>
 
       <div className="bounds-editor">
@@ -160,8 +171,28 @@ export default function ControlsBar({
             onKeyDown={onBoundsKeyDown}
           />
         </label>
+        <label>
+          zMin
+          <input
+            type="number"
+            value={bounds.zMin}
+            onChange={(event) => setBounds((prev) => ({ ...prev, zMin: event.target.value }))}
+            onKeyDown={onBoundsKeyDown}
+          />
+        </label>
+        <label>
+          zMax
+          <input
+            type="number"
+            value={bounds.zMax}
+            onChange={(event) => setBounds((prev) => ({ ...prev, zMax: event.target.value }))}
+            onKeyDown={onBoundsKeyDown}
+          />
+        </label>
         <button onClick={submitBounds}>Apply Bounds</button>
-        <span className="bounds-hint">Mouse: wheel = both axes, Shift+wheel = x only, Alt+wheel = y only</span>
+        <span className="bounds-hint">
+          Mouse: drag = rotate, wheel = camera zoom, Shift+wheel = x span, Alt+wheel = y span, Ctrl+wheel = z span
+        </span>
         {boundsError ? <span className="bounds-error">{boundsError}</span> : null}
       </div>
     </div>

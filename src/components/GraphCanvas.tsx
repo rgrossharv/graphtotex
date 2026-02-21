@@ -6,7 +6,7 @@ import {
   type WheelEvent as ReactWheelEvent
 } from 'react';
 import type { GraphSettings, PreparedExpression, Viewport } from '../types';
-import { parseDomainBounds, sampleExpression } from '../lib/mathParser';
+import { parseDomainBounds, sampleExpression, sampleImplicitContours } from '../lib/mathParser';
 import { buildTicks, panByPixels, screenToWorld, worldToScreen, zoomAt, zoomAtByAxis } from '../lib/viewport';
 
 interface GraphCanvasProps {
@@ -118,7 +118,36 @@ function drawGraph(
   }
 
   expressions.forEach((expr) => {
-    if (!expr.visible || !expr.evaluator || expr.error) {
+    if (!expr.visible || expr.error) {
+      return;
+    }
+
+    ctx.strokeStyle = expr.color;
+    ctx.lineWidth = expr.lineWidth * window.devicePixelRatio;
+    ctx.setLineDash(expr.dashed ? [10, 8] : []);
+
+    if (expr.mode === 'implicit' && expr.implicitEvaluator) {
+      const segments = sampleImplicitContours(expr.implicitEvaluator, viewport, expr.samples);
+      segments.forEach((segment) => {
+        if (segment.length < 2) {
+          return;
+        }
+
+        ctx.beginPath();
+        segment.forEach((p, index) => {
+          const { px, py } = worldToScreen(p.x, p.y, width, height, viewport);
+          if (index === 0) {
+            ctx.moveTo(px, py);
+          } else {
+            ctx.lineTo(px, py);
+          }
+        });
+        ctx.stroke();
+      });
+      return;
+    }
+
+    if (!expr.evaluator) {
       return;
     }
 
@@ -131,10 +160,6 @@ function drawGraph(
     }
 
     const segments = sampleExpression(expr.evaluator, xMin, xMax, expr.samples, viewport);
-
-    ctx.strokeStyle = expr.color;
-    ctx.lineWidth = expr.lineWidth * window.devicePixelRatio;
-    ctx.setLineDash(expr.dashed ? [10, 8] : []);
 
     segments.forEach((segment) => {
       if (segment.length < 2) {
@@ -157,29 +182,43 @@ function drawGraph(
   ctx.setLineDash([]);
 }
 
+function normalizeWheelDelta(event: ReactWheelEvent<HTMLCanvasElement>, height: number): number {
+  const modeScale =
+    event.deltaMode === WheelEvent.DOM_DELTA_LINE
+      ? 16
+      : event.deltaMode === WheelEvent.DOM_DELTA_PAGE
+        ? height
+        : 1;
+
+  const dominantDelta = Math.abs(event.deltaY) >= Math.abs(event.deltaX) ? event.deltaY : event.deltaX;
+  return dominantDelta * modeScale;
+}
+
 export default function GraphCanvas({ expressions, viewport, settings, onViewportChange }: GraphCanvasProps) {
+  const frameRef = useRef<HTMLDivElement | null>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [size, setSize] = useState({ width: 800, height: 560 });
+  const [size, setSize] = useState({ width: 560, height: 560 });
 
   const draggingRef = useRef(false);
   const lastPosRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
-    const wrapper = wrapperRef.current;
-    if (!wrapper) {
+    const frame = frameRef.current;
+    if (!frame) {
       return;
     }
 
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
-        const width = Math.max(240, Math.round(entry.contentRect.width));
-        const height = Math.max(240, Math.round(entry.contentRect.height));
-        setSize({ width, height });
+        const nextWidth = Math.max(240, Math.round(entry.contentRect.width));
+        const nextHeight = Math.max(240, Math.round(entry.contentRect.height));
+        const side = Math.min(nextWidth, nextHeight);
+        setSize({ width: side, height: side });
       }
     });
 
-    observer.observe(wrapper);
+    observer.observe(frame);
     return () => observer.disconnect();
   }, []);
 
@@ -241,7 +280,7 @@ export default function GraphCanvas({ expressions, viewport, settings, onViewpor
     const mouseY = event.clientY - rect.top;
 
     const world = screenToWorld(mouseX, mouseY, size.width, size.height, viewport);
-    const normalizedDelta = Math.max(-120, Math.min(120, event.deltaY));
+    const normalizedDelta = Math.max(-180, Math.min(180, normalizeWheelDelta(event, size.height)));
     const factor = Math.exp(normalizedDelta * 0.0016);
     const zoomXOnly = event.shiftKey;
     const zoomYOnly = event.altKey;
@@ -260,8 +299,10 @@ export default function GraphCanvas({ expressions, viewport, settings, onViewpor
   };
 
   return (
-    <div className="graph-wrap" ref={wrapperRef}>
-      <canvas ref={canvasRef} onMouseDown={onMouseDown} onWheel={onWheel} />
+    <div className="graph-frame" ref={frameRef}>
+      <div className="graph-wrap" ref={wrapperRef} style={{ width: `${size.width}px`, height: `${size.height}px` }}>
+        <canvas ref={canvasRef} onMouseDown={onMouseDown} onWheel={onWheel} />
+      </div>
     </div>
   );
 }

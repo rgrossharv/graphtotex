@@ -104,7 +104,7 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
-  overflow: hidden;
+  overflow: auto;
 }
 
 .top-header {
@@ -113,6 +113,10 @@ textarea {
   border-radius: 14px;
   padding: 1rem 1.2rem;
   box-shadow: var(--shadow);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.9rem;
 }
 
 .top-header h1 {
@@ -125,6 +129,25 @@ textarea {
 .top-header p {
   margin: 0.25rem 0 0;
   color: rgba(248, 251, 255, 0.9);
+}
+
+.page-switch {
+  display: inline-flex;
+  gap: 0.4rem;
+}
+
+.page-switch button {
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.12);
+  color: #f8fbff;
+  border-radius: 9px;
+  padding: 0.34rem 0.65rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.page-switch button.is-active {
+  background: rgba(255, 255, 255, 0.26);
 }
 
 .controls-bar {
@@ -179,9 +202,9 @@ textarea {
   margin-top: 0.1rem;
   padding-top: 0.45rem;
   border-top: 1px dashed var(--bounds-divider);
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
   gap: 0.45rem;
 }
 
@@ -192,16 +215,26 @@ textarea {
 }
 
 .bounds-editor label {
-  display: inline-flex;
+  display: grid;
+  grid-template-columns: auto 1fr;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.45rem;
   font-size: 0.84rem;
   color: var(--muted);
+  min-width: 0;
 }
 
 .bounds-editor input {
-  width: 92px;
+  width: 100%;
+  min-width: 0;
   padding: 0.28rem 0.4rem;
+}
+
+.bounds-editor .bounds-title,
+.bounds-editor button,
+.bounds-editor .bounds-hint,
+.bounds-editor .bounds-error {
+  grid-column: 1 / -1;
 }
 
 .bounds-error {
@@ -229,7 +262,7 @@ textarea {
 }
 
 .viewport-chip {
-  margin-left: auto;
+  margin-left: 0;
   background: var(--chip-bg);
   color: var(--chip-text);
   border: 1px solid var(--chip-border);
@@ -239,16 +272,18 @@ textarea {
   font-weight: 600;
 }
 
-.main-layout {
+.workspace-layout {
   display: grid;
-  grid-template-columns: minmax(300px, 370px) minmax(0, 1fr);
+  grid-template-columns: minmax(310px, 350px) minmax(310px, 360px) minmax(760px, 1fr);
   gap: 0.8rem;
   flex: 1;
   min-height: 0;
+  min-width: 1460px;
 }
 
 .left-panel,
-.graph-panel {
+.graph-panel,
+.right-panel {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -260,6 +295,8 @@ textarea {
 .left-panel {
   display: flex;
   flex-direction: column;
+  height: 100%;
+  overflow: hidden;
 }
 
 .left-panel h2 {
@@ -272,11 +309,15 @@ textarea {
 
 .expr-list {
   padding: 0.75rem;
-  overflow: auto;
+  height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1 1 auto;
   min-height: 0;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
+  align-items: stretch;
 }
 
 .expr-row {
@@ -284,6 +325,8 @@ textarea {
   border-radius: 10px;
   background: var(--surface-2);
   padding: 0.55rem;
+  overflow: hidden;
+  flex: 0 0 auto;
 }
 
 .expr-topline {
@@ -380,7 +423,7 @@ textarea {
   padding-top: 0.5rem;
   border-top: 1px solid var(--settings-divider);
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 0.45rem;
 }
 
@@ -395,18 +438,83 @@ textarea {
 .expr-settings label.checkbox-row {
   flex-direction: row;
   align-items: center;
-  grid-column: span 2;
+  grid-column: span 1;
+}
+
+.expr-settings input[type='number'],
+.expr-settings input[type='color'],
+.expr-settings input[type='range'] {
+  width: 100%;
+  max-width: 100%;
 }
 
 .graph-panel {
-  padding: 0.6rem;
+  padding: 0.45rem;
   display: flex;
+  overflow: hidden;
 }
 
-.graph-wrap {
+.right-panel {
+  padding: 0.6rem;
+  overflow: auto;
+}
+
+.right-panel .controls-bar {
+  box-shadow: none;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+.right-panel .controls-bar > button,
+.right-panel .controls-bar > label,
+.right-panel .controls-bar > .checkbox-row.inline,
+.right-panel .controls-bar > .viewport-chip,
+.right-panel .controls-bar > .bounds-editor {
+  width: 100%;
+}
+
+.right-panel .controls-bar > label {
+  justify-content: space-between;
+}
+
+.right-panel .controls-bar select {
+  width: 100%;
+}
+
+.right-panel .checkbox-row.inline {
+  border-radius: 10px;
+  padding: 0.35rem 0.5rem;
+}
+
+.right-panel .bounds-editor {
+  margin-top: 0.2rem;
+  padding-top: 0.5rem;
+}
+
+.right-panel .bounds-editor label {
+  width: 100%;
+}
+
+.right-panel .bounds-editor input {
+  width: 100%;
+}
+
+.graph-frame {
   width: 100%;
   height: 100%;
   min-height: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.graph-wrap {
   border: 1px solid var(--border);
   border-radius: 10px;
   overflow: hidden;
@@ -415,8 +523,10 @@ textarea {
 
 .graph-wrap canvas {
   display: block;
+  width: 100%;
+  height: 100%;
   cursor: grab;
-  touch-action: none;
+  touch-action: pan-x pan-y;
 }
 
 .graph-wrap canvas:active {
@@ -467,6 +577,32 @@ textarea {
   text-decoration: underline;
 }
 
+.wip-layout {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+}
+
+.wip-card {
+  width: min(640px, 96vw);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 1rem 1.1rem;
+}
+
+.wip-card h2 {
+  margin: 0 0 0.3rem;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.wip-card p {
+  margin: 0;
+  color: var(--muted);
+}
+
 .modal-header {
   display: flex;
   justify-content: space-between;
@@ -499,21 +635,52 @@ textarea {
 }
 
 @media (max-width: 980px) {
-  .main-layout {
+  html,
+  body,
+  #root {
+    height: auto;
+    min-height: 100%;
+    overflow: auto;
+  }
+
+  .app-shell {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+
+  .workspace-layout {
     grid-template-columns: 1fr;
-    min-height: 0;
+    min-height: unset;
+    min-width: 0;
+  }
+
+  .bounds-editor {
+    grid-template-columns: 1fr;
   }
 
   .left-panel {
-    max-height: 38vh;
+    max-height: none;
   }
 
   .graph-wrap {
-    min-height: 260px;
+    width: 100%;
   }
 
   .viewport-chip {
     margin-left: 0;
+  }
+
+  .top-header {
+    flex-direction: column;
+  }
+
+  .right-panel {
+    max-height: none;
+  }
+
+  .page-switch {
+    align-self: flex-start;
   }
 
   .app-footer {

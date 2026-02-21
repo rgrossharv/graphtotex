@@ -136,7 +136,15 @@ function buildFrameAndWatermark(viewport: Viewport): string[] {
 }
 
 function expressionToTikz(expr: PreparedExpression, viewport: Viewport): string[] {
-  if (!expr.visible || !expr.evaluator || expr.error) {
+  if (!expr.visible || expr.error) {
+    return [];
+  }
+
+  if (expr.mode === 'implicit') {
+    return [`% ${expr.rawInput} is an implicit equation and is currently not included in TikZ export.`];
+  }
+
+  if (!expr.evaluator) {
     return [];
   }
 
@@ -192,6 +200,7 @@ export function generateTikzExport({ expressions, viewport, settings }: TikzExpo
     '% Scale tip: add scale=<value> in tikzpicture options, e.g. \\begin{tikzpicture}[scale=0.8, ...]',
     '% Required packages: \\usepackage{tikz} and \\usetikzlibrary{arrows.meta}',
     '% Note: trig/inverse trig expressions are exported as sampled coordinates to preserve radian behavior.',
+    '\\begin{center}',
     '\\begin{tikzpicture}[scale=0.6, line cap=round, line join=round, >=Stealth]',
     `\\clip (${formatNumber(viewport.xMin)},${formatNumber(viewport.yMin)}) rectangle (${formatNumber(
       viewport.xMax
@@ -206,5 +215,5 @@ export function generateTikzExport({ expressions, viewport, settings }: TikzExpo
 
   body.push(...buildFrameAndWatermark(viewport));
 
-  return [...header, ...body, '\\end{tikzpicture}'].join('\n');
+  return [...header, ...body, '\\end{tikzpicture}', '\\end{center}'].join('\n');
 }

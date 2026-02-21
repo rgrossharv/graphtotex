@@ -104,7 +104,7 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
-  overflow: auto;
+  overflow: hidden;
 }
 
 .top-header {
@@ -274,11 +274,16 @@ textarea {
 
 .workspace-layout {
   display: grid;
-  grid-template-columns: minmax(310px, 350px) minmax(310px, 360px) minmax(760px, 1fr);
+  grid-template-columns: minmax(240px, 22vw) minmax(260px, 24vw) minmax(0, 1fr);
   gap: 0.8rem;
   flex: 1;
   min-height: 0;
-  min-width: 1460px;
+  min-width: 0;
+  width: 100%;
+}
+
+.workspace-layout > * {
+  min-width: 0;
 }
 
 .left-panel,
@@ -638,20 +643,20 @@ textarea {
   html,
   body,
   #root {
-    height: auto;
-    min-height: 100%;
-    overflow: auto;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
   }
 
   .app-shell {
-    height: auto;
-    min-height: 100dvh;
-    overflow: visible;
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
   }
 
   .workspace-layout {
     grid-template-columns: 1fr;
-    min-height: unset;
+    min-height: 0;
     min-width: 0;
   }
 
@@ -660,7 +665,11 @@ textarea {
   }
 
   .left-panel {
-    max-height: none;
+    max-height: 38vh;
+  }
+
+  .right-panel {
+    max-height: 30vh;
   }
 
   .graph-wrap {

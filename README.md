@@ -1,32 +1,14 @@
 # GraphToTeX
 
-GraphToTeX is an app that graphs 2D expressions and exports what you see to TikZ.
+GraphToTeX is an app that graphs 2D and 3D expressions and exports what you see to TikZ.
 
 ## Project Note
 
 This project was vibecoded with follow-up adjustments and human testing.
-I plan to add a 3D implementation in a future version.
-
-## Features
-
-- Expression list with add/remove/reorder and per-expression settings.
-- Readable rendered math preview (KaTeX).
-- Interactive 2D canvas graphing with pan/zoom, grid, axes, and ticks.
-- Robust parse/eval handling with inline errors per expression.
-- TikZ export modal with copy/download.
-- Symbolic TikZ export for safe expression classes.
-- Automatic coordinate fallback for unsupported/trig expressions.
-
-## TikZ Export Notes
-
-- Export button opens a modal with a paste-ready `tikzpicture` snippet.
-- Trig/inverse trig expressions are intentionally exported as sampled coordinates to preserve radian behavior.
-- Other safe expressions (polynomial/rational/powers/sqrt/abs/exp/ln/log) are exported symbolically when conversion is valid.
-- Large sampled curves are downsampled in export to keep output practical.
 
 ## Citation
 
-If you use GraphToTeX in homework, reports, notes, or other writeups, cite it using one of the following.
+If you use GraphToTeX in homework, reports, notes, or other writeups, and you need cite it (definitely don't have to in my book) just use one of the following.
 
 Plain text:
 

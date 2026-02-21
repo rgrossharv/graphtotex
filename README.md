@@ -12,7 +12,7 @@ If you use GraphToTeX in homework, reports, notes, or other writeups, and you ne
 
 Plain text:
 
-- Ryland Gross. *GraphToTeX: Interactive graphing calculator with TikZ export*. Built with Codex assistance. GitHub repository: `https://github.com/rylandgross/graphtotex`.
+- Ryland Gross. *GraphToTeX: Interactive graphing calculator with TikZ export*. Built with Codex assistance. GitHub repository: `https://github.com/rgrossharv/graphtotex`.
 
 BibTeX:
 

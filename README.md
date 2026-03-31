@@ -4,7 +4,7 @@ GraphToTeX is an app that graphs 2D and 3D expressions and exports what you see 
 
 ## Project Note
 
-This project was vibecoded with follow-up adjustments and human testing for bugs and accuracy.
+This project was vibecoded (using codex by openai) with follow-up adjustments and human testing for bugs and accuracy.
 
 ## Citation
 

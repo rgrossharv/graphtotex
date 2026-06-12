@@ -1,14 +1,14 @@
 # GraphToTeX
 
-GraphToTeX is an app that graphs 2D and 3D expressions and exports what you see to TikZ.
+GraphToTeX is an app that graphs 2D and 3D expressions and exports what you see to TikZ. I made this webapp to speed up some of the homework I was doing for Econ1011b at Harvard since I really hate writing out Tikz by hand. I hope you find it useful!
 
-## Project Note
+## AI Acknowledgement
 
 This project was vibecoded (using codex by openai) with follow-up adjustments and human testing for bugs and accuracy.
 
 ## Citation
 
-If you used GraphToTeX in homeworks, reports, etc, and you have to cite it for school or just want to (definitely don't have to in my book) use one of the following.
+If you used GraphToTeX in homeworks, reports, etc, and you have to cite it for school or just want to (definitely don't have to in my book) use one of the following. 
 
 Plain text:
 

@@ -6,6 +6,7 @@ import ExpressionList3D from './components/ExpressionList3D';
 import GraphCanvas from './components/GraphCanvas';
 import GraphCanvas3D from './components/GraphCanvas3D';
 import TikzModal from './components/TikzModal';
+import DiagramEditor from './components/DiagramEditor';
 import { prepareMath } from './lib/mathParser';
 import { prepareMath3D } from './lib/mathParser3d';
 import { generateTikzExport } from './lib/tikzExport';
@@ -101,15 +102,18 @@ function exampleExpressions3D(key: string): Expression3D[] {
   }
 }
 
-function initialPage(): '2d' | '3d' {
+type Page = '2d' | '3d' | 'diagrams';
+
+function initialPage(): Page {
   if (typeof window === 'undefined') {
     return '2d';
   }
+  if (window.location.hash === '#diagrams') return 'diagrams';
   return window.location.hash === '#3d' ? '3d' : '2d';
 }
 
 export default function App() {
-  const [page, setPage] = useState<'2d' | '3d'>(initialPage);
+  const [page, setPage] = useState<Page>(initialPage);
   const [isMobile, setIsMobile] = useState<boolean>(() => {
     if (typeof window === 'undefined') {
       return false;
@@ -137,7 +141,7 @@ export default function App() {
   const [tikzMode, setTikzMode] = useState<'2d' | '3d'>('2d');
 
   useEffect(() => {
-    const onHashChange = () => setPage(window.location.hash === '#3d' ? '3d' : '2d');
+    const onHashChange = () => setPage(initialPage());
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
@@ -265,9 +269,9 @@ export default function App() {
     });
   };
 
-  const navigateTo = (nextPage: '2d' | '3d') => {
+  const navigateTo = (nextPage: Page) => {
     setPage(nextPage);
-    window.location.hash = nextPage === '3d' ? '#3d' : '';
+    window.location.hash = nextPage === '2d' ? '' : `#${nextPage}`;
   };
 
   return (
@@ -278,7 +282,9 @@ export default function App() {
           <p>
             {page === '2d'
               ? 'Interactive graphing calculator with direct TikZ export.'
-              : 'Interactive 3D surface graphing workspace with live controls.'}{' '}
+              : page === '3d'
+                ? 'Interactive 3D surface graphing workspace with live controls.'
+                : 'Commutative diagrams, from your canvas to clean TikZ.'}{' '}
             {isMobile ? <span>(Best Used on Desktop)</span> : null}
           </p>
         </div>
@@ -289,10 +295,13 @@ export default function App() {
           <button className={page === '3d' ? 'is-active' : ''} onClick={() => navigateTo('3d')}>
             3d
           </button>
+          <button className={page === 'diagrams' ? 'is-active' : ''} onClick={() => navigateTo('diagrams')}>
+            Diagrams
+          </button>
         </div>
       </header>
 
-      {page === '2d' ? (
+      {page === 'diagrams' ? <DiagramEditor /> : page === '2d' ? (
         <main className="workspace-layout">
           <aside className="right-panel">
             <ControlsBar

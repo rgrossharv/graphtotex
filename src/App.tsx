@@ -6,6 +6,8 @@ import ExpressionList3D from './components/ExpressionList3D';
 import GraphCanvas from './components/GraphCanvas';
 import GraphCanvas3D from './components/GraphCanvas3D';
 import TikzModal from './components/TikzModal';
+import DiagramEditor from './components/DiagramEditor';
+import CiteGraphModal from './components/CiteGraphModal';
 import { prepareMath } from './lib/mathParser';
 import { prepareMath3D } from './lib/mathParser3d';
 import { generateTikzExport } from './lib/tikzExport';
@@ -101,15 +103,17 @@ function exampleExpressions3D(key: string): Expression3D[] {
   }
 }
 
-function initialPage(): '2d' | '3d' {
+type Page = '2d' | '3d' | 'diagram';
+
+function initialPage(): Page {
   if (typeof window === 'undefined') {
     return '2d';
   }
-  return window.location.hash === '#3d' ? '3d' : '2d';
+  return window.location.hash === '#diagram' ? 'diagram' : window.location.hash === '#3d' ? '3d' : '2d';
 }
 
 export default function App() {
-  const [page, setPage] = useState<'2d' | '3d'>(initialPage);
+  const [page, setPage] = useState<Page>(initialPage);
   const [isMobile, setIsMobile] = useState<boolean>(() => {
     if (typeof window === 'undefined') {
       return false;
@@ -134,10 +138,12 @@ export default function App() {
   });
 
   const [isTikzOpen, setIsTikzOpen] = useState(false);
+  const [isCiteOpen, setIsCiteOpen] = useState(false);
   const [tikzMode, setTikzMode] = useState<'2d' | '3d'>('2d');
+  const [exportScale, setExportScale] = useState(1.2);
 
   useEffect(() => {
-    const onHashChange = () => setPage(window.location.hash === '#3d' ? '3d' : '2d');
+    const onHashChange = () => setPage(initialPage());
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
@@ -188,9 +194,10 @@ export default function App() {
       generateTikzExport({
         expressions: preparedExpressions,
         viewport,
-        settings
+        settings,
+        scale: exportScale
       }),
-    [preparedExpressions, settings, viewport]
+    [preparedExpressions, settings, viewport, exportScale]
   );
 
   const tikzCode3D = useMemo(
@@ -198,9 +205,10 @@ export default function App() {
       generateTikzExport3D({
         expressions: preparedExpressions3D,
         viewport: viewport3D,
-        settings: settings3D
+        settings: settings3D,
+        scale: exportScale
       }),
-    [preparedExpressions3D, settings3D, viewport3D]
+    [preparedExpressions3D, settings3D, viewport3D, exportScale]
   );
 
   const updateExpression = (id: string, patch: Partial<Expression>) => {
@@ -265,9 +273,9 @@ export default function App() {
     });
   };
 
-  const navigateTo = (nextPage: '2d' | '3d') => {
+  const navigateTo = (nextPage: Page) => {
     setPage(nextPage);
-    window.location.hash = nextPage === '3d' ? '#3d' : '';
+    window.location.hash = nextPage === '2d' ? '' : `#${nextPage}`;
   };
 
   return (
@@ -278,7 +286,8 @@ export default function App() {
           <p>
             {page === '2d'
               ? 'Interactive graphing calculator with direct TikZ export.'
-              : 'Interactive 3D surface graphing workspace with live controls.'}{' '}
+              : page === '3d' ? 'Interactive 3D surface graphing workspace with live controls.'
+              : 'Build commutative diagrams with LaTeX labels and direct TikZ export.'}{' '}
             {isMobile ? <span>(Best Used on Desktop)</span> : null}
           </p>
         </div>
@@ -288,6 +297,9 @@ export default function App() {
           </button>
           <button className={page === '3d' ? 'is-active' : ''} onClick={() => navigateTo('3d')}>
             3d
+          </button>
+          <button className={page === 'diagram' ? 'is-active' : ''} onClick={() => navigateTo('diagram')}>
+            Diagrams
           </button>
         </div>
       </header>
@@ -330,7 +342,7 @@ export default function App() {
             />
           </section>
         </main>
-      ) : (
+      ) : page === '3d' ? (
         <main className="workspace-layout">
           <aside className="right-panel">
             <ControlsBar3D
@@ -368,19 +380,24 @@ export default function App() {
             />
           </section>
         </main>
-      )}
+      ) : <DiagramEditor />}
 
       <footer className="app-footer">
-        <span>Made for Econ1011b at Harvard University</span>
+        <span>{page === 'diagram' ? 'Made for Math 221 at Harvard University' : 'Made for Econ1011b at Harvard University'}</span>
         <a href="https://github.com/rgrossharv/graphtotex" target="_blank" rel="noreferrer">
           GraphToTeX Repository
         </a>
+        <button className="cite-graph-trigger" onClick={() => setIsCiteOpen(true)}>Cite GraphToTeX</button>
       </footer>
+
+      <CiteGraphModal isOpen={isCiteOpen} onClose={() => setIsCiteOpen(false)} />
 
       <TikzModal
         isOpen={isTikzOpen}
         variant={tikzMode}
         tikzCode={tikzMode === '2d' ? tikzCode : tikzCode3D}
+        scale={exportScale}
+        onScaleChange={setExportScale}
         onClose={() => setIsTikzOpen(false)}
       />
     </div>

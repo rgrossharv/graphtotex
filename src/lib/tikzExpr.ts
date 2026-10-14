@@ -25,7 +25,7 @@ function convertNode(node: MathNode): TikzExprResult {
   }
 
   if (node.type === 'ConstantNode') {
-    const value = (node as unknown as { value: string }).value;
+    const value = String((node as unknown as { value: unknown }).value);
     if (value === 'pi') {
       return { ok: true, expression: 'pi' };
     }

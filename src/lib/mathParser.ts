@@ -346,21 +346,22 @@ function edgeIntersection(
   v1: number,
   x2: number,
   y2: number,
-  v2: number
+  v2: number,
+  evaluator: (x: number, y: number) => number | null
 ): SegmentPoint | null {
   if (!Number.isFinite(v1) || !Number.isFinite(v2)) {
     return null;
   }
 
-  if (Math.abs(v1) < 1e-12 && Math.abs(v2) < 1e-12) {
+  if (v1 === 0 && v2 === 0) {
     return null;
   }
 
-  if (Math.abs(v1) < 1e-12) {
+  if (v1 === 0) {
     return { x: x1, y: y1 };
   }
 
-  if (Math.abs(v2) < 1e-12) {
+  if (v2 === 0) {
     return { x: x2, y: y2 };
   }
 
@@ -373,10 +374,24 @@ function edgeIntersection(
     return null;
   }
 
-  return {
-    x: x1 + t * (x2 - x1),
-    y: y1 + t * (y2 - y1)
-  };
+  // A sign change can also be a pole (e.g. 1/x = 0). Refine the root and
+  // require a smaller residual before accepting an intersection.
+  let low = 0, high = 1, lowValue = v1;
+  let best: SegmentPoint | null = null;
+  let bestResidual = Infinity;
+  const baseline = Math.min(Math.abs(v1), Math.abs(v2));
+  for (let iteration = 0; iteration < 18; iteration++) {
+    const fraction = iteration === 0 ? t : (low + high) / 2;
+    const point = { x: x1 + fraction * (x2 - x1), y: y1 + fraction * (y2 - y1) };
+    const value = evaluator(point.x, point.y);
+    if (value === null || !Number.isFinite(value)) return null;
+    const residual = Math.abs(value);
+    if (residual < bestResidual) { best = point; bestResidual = residual; }
+    if (residual === 0 || residual <= baseline * 1e-6) return point;
+    if ((value > 0) === (lowValue > 0)) { low = fraction; lowValue = value; }
+    else high = fraction;
+  }
+  return bestResidual <= baseline * 0.02 ? best : null;
 }
 
 export function sampleImplicitContours(
@@ -419,10 +434,10 @@ export function sampleImplicitContours(
 
       const intersections: SegmentPoint[] = [];
 
-      const bottom = edgeIntersection(x0, y0, v00, x1, y0, v10);
-      const right = edgeIntersection(x1, y0, v10, x1, y1, v11);
-      const top = edgeIntersection(x1, y1, v11, x0, y1, v01);
-      const left = edgeIntersection(x0, y1, v01, x0, y0, v00);
+      const bottom = edgeIntersection(x0, y0, v00, x1, y0, v10, evaluator);
+      const right = edgeIntersection(x1, y0, v10, x1, y1, v11, evaluator);
+      const top = edgeIntersection(x1, y1, v11, x0, y1, v01, evaluator);
+      const left = edgeIntersection(x0, y1, v01, x0, y0, v00, evaluator);
 
       if (bottom) intersections.push(bottom);
       if (right) intersections.push(right);

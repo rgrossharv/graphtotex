@@ -3,11 +3,13 @@ import { parseDomainBounds, sampleExpression } from './mathParser';
 import { convertAstToTikz } from './tikzExpr';
 import { buildTicks, getNiceTickStep } from './viewport';
 import { formatNumber } from './formatting';
+import { exportExplicitLine, exportImplicitExpression } from './implicitExport';
 
 interface TikzExportInput {
   expressions: PreparedExpression[];
   viewport: Viewport;
   settings: GraphSettings;
+  scale?: number;
 }
 
 function hexToRgb(hex: string): { r: number; g: number; b: number } {
@@ -140,14 +142,6 @@ function expressionToTikz(expr: PreparedExpression, viewport: Viewport): string[
     return [];
   }
 
-  if (expr.mode === 'implicit') {
-    return [`% ${expr.rawInput} is an implicit equation and is currently not included in TikZ export.`];
-  }
-
-  if (!expr.evaluator) {
-    return [];
-  }
-
   const domain = parseDomainBounds(expr.domainMin, expr.domainMax, viewport);
   const clampedDomain = {
     xMin: Math.max(domain.xMin, viewport.xMin),
@@ -159,6 +153,12 @@ function expressionToTikz(expr: PreparedExpression, viewport: Viewport): string[
   }
 
   const style = lineStyle(expr);
+  if (expr.mode === 'implicit') {
+    return exportImplicitExpression(expr, { ...viewport, ...clampedDomain }, style);
+  }
+  if (!expr.evaluator) return [];
+  const line = exportExplicitLine(expr, { ...viewport, ...clampedDomain }, style);
+  if (line) return line;
   const symbolic = convertAstToTikz(expr.node);
 
   if (symbolic.ok && symbolic.expression) {
@@ -194,14 +194,15 @@ function expressionToTikz(expr: PreparedExpression, viewport: Viewport): string[
   return lines;
 }
 
-export function generateTikzExport({ expressions, viewport, settings }: TikzExportInput): string {
+export function generateTikzExport({ expressions, viewport, settings, scale = 1.2 }: TikzExportInput): string {
   const header = [
     '% GraphToTeX export',
     '% Scale tip: add scale=<value> in tikzpicture options, e.g. \\begin{tikzpicture}[scale=0.8, ...]',
     '% Required packages: \\usepackage{tikz} and \\usetikzlibrary{arrows.meta}',
     '% Note: trig/inverse trig expressions are exported as sampled coordinates to preserve radian behavior.',
+    '% Implicit curves use sampled contours; sample density controls their detail.',
     '\\begin{center}',
-    '\\begin{tikzpicture}[scale=0.6, line cap=round, line join=round, >=Stealth]',
+    `\\begin{tikzpicture}[scale=${formatNumber(scale)}, line cap=round, line join=round, >=Stealth]`,
     `\\clip (${formatNumber(viewport.xMin)},${formatNumber(viewport.yMin)}) rectangle (${formatNumber(
       viewport.xMax
     )},${formatNumber(viewport.yMax)});`

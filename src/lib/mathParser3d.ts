@@ -97,7 +97,7 @@ function toFiniteNumber(value: unknown): number | null {
 }
 
 export function prepareMath3D(rawInput: string): PreparedSurfaceMath {
-  const normalizedInput = normalizeInput(rawInput);
+  const normalizedInput = normalizeInput(rawInput).replace(/^z\s*=\s*/, '');
 
   if (!normalizedInput) {
     return {

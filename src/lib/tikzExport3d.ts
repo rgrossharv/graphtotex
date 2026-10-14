@@ -7,6 +7,7 @@ interface TikzExport3DInput {
   expressions: PreparedExpression3D[];
   viewport: Viewport3D;
   settings: GraphSettings3D;
+  scale?: number;
 }
 
 function hexToRgb(hex: string): { r: number; g: number; b: number } {
@@ -25,7 +26,7 @@ function tikzColor(hex: string): string {
   return `{rgb,255:red,${r};green,${g};blue,${b}}`;
 }
 
-function surfaceToTikz(expr: PreparedExpression3D, viewport: Viewport3D): string[] {
+function surfaceToTikz(expr: PreparedExpression3D, viewport: Viewport3D, index: number): string[] {
   if (!expr.visible || !expr.evaluator || expr.error) {
     return [];
   }
@@ -43,22 +44,11 @@ function surfaceToTikz(expr: PreparedExpression3D, viewport: Viewport3D): string
   }
 
   const symbolic = convertAstToTikz3D(expr.node);
-  const sampleDensity = 15;
-
-  if (symbolic.ok && symbolic.expression) {
-    const dash = expr.dashed ? ', dashed' : '';
-    return [
-      `% Surface: z = ${expr.rawInput}`,
-      `\\addplot3[surf, shader=faceted interp, fill opacity=0.58, draw opacity=0.82, draw=${tikzColor(
-        expr.color
-      )}, fill=${tikzColor(expr.color)}, line width=${(expr.lineWidth * 0.5).toFixed(2)}pt${dash}, domain=${formatNumber(
-        xMin
-      )}:${formatNumber(xMax)}, y domain=${formatNumber(yMin)}:${formatNumber(
-        yMax
-      )}, samples=${sampleDensity}, samples y=${sampleDensity}]`,
-      `{${symbolic.expression}};`
-    ];
-  }
+  const sampleDensity = Math.max(12, Math.min(80, Math.round(Math.sqrt(expr.samples) * 1.35)));
+  const color = tikzColor(expr.color);
+  const { r, g, b } = hexToRgb(expr.color);
+  const style = `surf, shader=faceted, colormap={surface${index}}{rgb255(0cm)=(${r},${g},${b}); rgb255(1cm)=(${r},${g},${b})}, faceted color=${color}, fill opacity=${expr.dashed ? '0.14' : '0.24'}, draw opacity=0.85, line width=${(expr.lineWidth * 0.45).toFixed(2)}pt${expr.dashed ? ', dashed' : ''}, unbounded coords=jump`;
+  const comment = `% Surface ${index + 1}: z = ${expr.rawInput.replace(/[\r\n]/g, ' ')}`;
 
   const cols = sampleDensity;
   const rows = cols;
@@ -66,6 +56,8 @@ function surfaceToTikz(expr: PreparedExpression3D, viewport: Viewport3D): string
   const dy = (yMax - yMin) / rows;
 
   const dataLines: string[] = [];
+  let hasHoles = false;
+  let validPoints = 0;
 
   for (let yi = 0; yi <= rows; yi += 1) {
     const y = yMin + yi * dy;
@@ -78,62 +70,81 @@ function surfaceToTikz(expr: PreparedExpression3D, viewport: Viewport3D): string
         z === null || !Number.isFinite(z) || Math.abs(z) > 1e7 || z < viewport.zMin || z > viewport.zMax
           ? 'nan'
           : formatNumber(z);
+      if (zText === 'nan') hasHoles = true;
+      else validPoints++;
 
       dataLines.push(`${formatNumber(x)} ${formatNumber(y)} ${zText}`);
     }
 
-    dataLines.push('');
   }
 
-  const dash = expr.dashed ? ', dashed' : '';
+  if (!validPoints) return [`% Skipped surface ${index + 1}: no finite points inside the visible bounds.`];
+
+  if (symbolic.ok && symbolic.expression && !hasHoles) {
+    return [comment,
+      `\\addplot3[${style}, domain=${formatNumber(xMin)}:${formatNumber(xMax)}, y domain=${formatNumber(yMin)}:${formatNumber(yMax)}, samples=${sampleDensity + 1}, samples y=${sampleDensity + 1}]`,
+      `{${symbolic.expression}};`
+    ];
+  }
 
   return [
-    `% Surface: z = ${expr.rawInput} (sampled fallback: ${symbolic.reason ?? 'conversion unavailable'})`,
-    `\\addplot3[surf, shader=faceted interp, fill opacity=0.55, draw opacity=0.8, draw=${tikzColor(
-      expr.color
-    )}, fill=${tikzColor(expr.color)}, line width=${(expr.lineWidth * 0.45).toFixed(2)}pt${dash}, mesh/rows=${
-      rows + 1
-    }, mesh/cols=${cols + 1}, unbounded coords=jump]`,
-    'table[row sep=\\] {',
-    ...dataLines.map((line) => `  ${line}\\`),
+    comment,
+    `% Sampled coordinates: ${hasHoles ? 'preserves undefined values and visible z limits' : symbolic.reason ?? 'symbolic conversion unavailable'}.`,
+    `\\addplot3[${style}, mesh/ordering=x varies, mesh/rows=${rows + 1}, mesh/cols=${cols + 1}]`,
+    'table[row sep=\\\\] {',
+    '  x y z\\\\',
+    ...dataLines.map((line) => `  ${line}\\\\`),
     '};'
   ];
 }
 
-export function generateTikzExport3D({ expressions, viewport, settings }: TikzExport3DInput): string {
-  const azimuth = ((viewport.yaw * 180) / Math.PI + 360) % 360;
-  const elevation = Math.max(-85, Math.min(85, (viewport.pitch * 180) / Math.PI));
+function boxLines(viewport: Viewport3D): string[] {
+  const corners = [
+    [viewport.xMin, viewport.yMin, viewport.zMin], [viewport.xMax, viewport.yMin, viewport.zMin],
+    [viewport.xMin, viewport.yMax, viewport.zMin], [viewport.xMax, viewport.yMax, viewport.zMin],
+    [viewport.xMin, viewport.yMin, viewport.zMax], [viewport.xMax, viewport.yMin, viewport.zMax],
+    [viewport.xMin, viewport.yMax, viewport.zMax], [viewport.xMax, viewport.yMax, viewport.zMax]
+  ];
+  return corners.flatMap((corner, index) => [1, 2, 4].filter((bit) => (index & bit) === 0).map((bit) =>
+    `\\addplot3[gray!45, thin, mark=none, forget plot] coordinates {(${corner.map(formatNumber).join(',')}) (${corners[index | bit].map(formatNumber).join(',')})};`
+  ));
+}
+
+export function generateTikzExport3D({ expressions, viewport, settings, scale = 1.2 }: TikzExport3DInput): string {
+  // Convert the preview's xy projection into PGFPlots' xz projection.
+  const azimuth = ((-viewport.yaw * 180 / Math.PI) % 360 + 360) % 360;
+  const elevation = 90 + viewport.pitch * 180 / Math.PI;
 
   const axisLines = settings.showAxes ? 'middle' : 'none';
   const grid = settings.showGrid ? 'both' : 'none';
-  const boxStyle = settings.showBox ? ', axis line style={draw opacity=0.5}' : '';
 
   const header = [
     '% GraphToTeX 3D export (pgfplots)',
     '% Required packages: \\usepackage{pgfplots} and \\pgfplotsset{compat=1.18}',
-    '% Tip: rotate with view={azimuth}{elevation}',
+    '% PGFPlots uses orthographic projection; the browser preview uses perspective.',
     '\\begin{center}',
-    '\\resizebox{0.88\\linewidth}{!}{%',
     '\\begin{tikzpicture}',
-    `\\begin{axis}[view={${formatNumber(azimuth)}}{${formatNumber(elevation)}}, grid=${grid}, axis lines=${axisLines}${boxStyle}, z buffer=sort,`,
+    `\\begin{axis}[view={${formatNumber(azimuth)}}{${formatNumber(elevation)}}, grid=${grid}, axis lines=${axisLines}, z buffer=sort,`,
     `  xmin=${formatNumber(viewport.xMin)}, xmax=${formatNumber(viewport.xMax)},`,
     `  ymin=${formatNumber(viewport.yMin)}, ymax=${formatNumber(viewport.yMax)},`,
     `  zmin=${formatNumber(viewport.zMin)}, zmax=${formatNumber(viewport.zMax)},`,
-    '  width=0.92\\linewidth, height=0.62\\linewidth, scale only axis,',
-    '  colormap/viridis]'
+    `  width=${formatNumber(9 * scale)}cm, height=${formatNumber(7 * scale)}cm, scale only axis, axis equal image,`,
+    settings.showAxes ? '  xlabel={$x$}, ylabel={$y$}, zlabel={$z$},' : '  xticklabels=\\empty, yticklabels=\\empty, zticklabels=\\empty, tick style={draw=none},',
+    '  enlargelimits=false, clip=true, clip mode=individual]'
   ];
 
   const body: string[] = [];
 
-  expressions.forEach((expr) => {
-    body.push(...surfaceToTikz(expr, viewport));
+  expressions.forEach((expr, index) => {
+    body.push(...surfaceToTikz(expr, viewport, index));
   });
 
   if (body.length === 0) {
     body.push('% No visible valid surfaces to export.');
   }
 
-  const footer = ['\\end{axis}', '\\end{tikzpicture}', '}', '\\end{center}'];
+  if (settings.showBox) body.push('% Bounding box', ...boxLines(viewport));
+  const footer = ['\\end{axis}', '\\end{tikzpicture}', '\\end{center}'];
 
   return [...header, ...body, ...footer].join('\n');
 }

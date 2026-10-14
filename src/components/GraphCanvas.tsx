@@ -127,7 +127,10 @@ function drawGraph(
     ctx.setLineDash(expr.dashed ? [10, 8] : []);
 
     if (expr.mode === 'implicit' && expr.implicitEvaluator) {
-      const segments = sampleImplicitContours(expr.implicitEvaluator, viewport, expr.samples);
+      const domain = parseDomainBounds(expr.domainMin, expr.domainMax, viewport);
+      const bounds = { ...viewport, xMin: Math.max(domain.xMin, viewport.xMin), xMax: Math.min(domain.xMax, viewport.xMax) };
+      if (bounds.xMax <= bounds.xMin) return;
+      const segments = sampleImplicitContours(expr.implicitEvaluator, bounds, expr.samples);
       segments.forEach((segment) => {
         if (segment.length < 2) {
           return;

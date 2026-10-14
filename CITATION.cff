@@ -1,17 +1,17 @@
 cff-version: 1.2.0
-title: "GraphToTeX: Interactive graphing calculator with TikZ export"
+title: "GraphToTeX: Graphs, diagrams, and citations for LaTeX"
 message: "If you use this software, please cite it using this metadata."
 type: software
 authors:
   - family-names: "Gross"
     given-names: "Ryland"
 year: 2026
-url: "https://github.com/rylandgross/graphtotex"
-abstract: "Interactive graphing calculator with TikZ export built by Ryland Gross with Codex assistance."
+url: "https://graphtotex.com"
+abstract: "Graphing, commutative diagrams, and citation tools for LaTeX."
 keywords:
   - graphing
   - tikz
   - latex
   - mathematics
   - education
-license: "Proprietary"
+license: "Unlicense"

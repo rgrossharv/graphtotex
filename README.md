@@ -1,33 +1,9 @@
 # GraphToTeX
 
-GraphToTeX is an app that graphs 2D and 3D expressions and exports what you see to TikZ. I made this webapp to speed up some of the homework I was doing for Econ1011b at Harvard since I really hate writing out Tikz by hand. I hope you find it useful!
+2D and 3D graphing and commutative diagrams with TikZ/TikZ-CD export. A citation workspace is retained in the source but is not enabled on the website yet.
 
-## AI Acknowledgement
+Run locally with `npm install` and `npm run dev`. Build with `npm run build`.
 
-This project was vibecoded (using codex by openai) with follow-up adjustments and human testing for bugs and accuracy.
+Built by Ryland Gross with Codex assistance; GPT 6.1 sol also worked on the project.
 
-## Citation
-
-If you used GraphToTeX in homeworks, reports, etc, and you have to cite it for school or just want to (definitely don't have to in my book) use one of the following. 
-
-Plain text:
-
-- Ryland Gross. *GraphToTeX: Interactive graphing calculator with TikZ export*. Built with Codex assistance. GitHub repository: `https://github.com/rgrossharv/graphtotex`.
-
-BibTeX:
-
-```bibtex
-@software{gross_graphtotex,
-  author = {Gross, Ryland},
-  title = {GraphToTeX: Interactive graphing calculator with TikZ export},
-  year = {2026},
-  url = {https://github.com/rgrossharv/graphtotex},
-  note = {Built with Codex assistance}
-}
-```
-
-You can also use `/Users/rylandgross/Documents/MyStuff/Archive/graphtotex/CITATION.cff` or `/Users/rylandgross/Documents/MyStuff/Archive/graphtotex/citation/graph-to-tex.bib`.
-
-## Copyright
-
-Copyright (c) 2026 Ryland Gross. MIT License
+Citation metadata: [CITATION.cff](CITATION.cff) and [BibTeX](citation/graph-to-tex.bib). See [LICENSE](LICENSE).

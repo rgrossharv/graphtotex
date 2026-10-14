@@ -17,7 +17,7 @@ function convertNode(node: MathNode): TikzExpr3DResult {
   }
 
   if (node.type === 'ConstantNode') {
-    const value = (node as unknown as { value: string }).value;
+    const value = String((node as unknown as { value: unknown }).value);
     if (value === 'pi') {
       return { ok: true, expression: 'pi' };
     }
@@ -49,12 +49,12 @@ function convertNode(node: MathNode): TikzExpr3DResult {
       isUnary: () => boolean;
     };
 
-    if (operatorNode.isUnary() && operatorNode.op === '-') {
+    if (operatorNode.isUnary() && (operatorNode.op === '-' || operatorNode.op === '+')) {
       const arg = convertNode(operatorNode.args[0]);
       if (!arg.ok || !arg.expression) {
         return arg;
       }
-      return { ok: true, expression: `-(${arg.expression})` };
+      return { ok: true, expression: `${operatorNode.op}(${arg.expression})` };
     }
 
     if (operatorNode.args.length !== 2) {

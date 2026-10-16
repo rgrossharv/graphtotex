@@ -6,7 +6,7 @@ import ExpressionList3D from './components/ExpressionList3D';
 import GraphCanvas from './components/GraphCanvas';
 import GraphCanvas3D from './components/GraphCanvas3D';
 import GraphWorkspace from './components/GraphWorkspace';
-import TikzModal from './components/TikzModal';
+import TikzModal, { type ExportAspectRatio } from './components/TikzModal';
 import DiagramEditor from './components/DiagramEditor';
 import MiscWorkspace from './components/MiscWorkspace';
 import CiteGraphModal from './components/CiteGraphModal';
@@ -16,7 +16,7 @@ import { generateTikzExport } from './lib/tikzExport';
 import { generateTikzExport3D } from './lib/tikzExport3d';
 import { DEFAULT_VIEWPORT_3D, clampViewport3D, zoomCamera3D } from './lib/viewport3d';
 import { clampViewport, DEFAULT_VIEWPORT, zoomAt } from './lib/viewport';
-import { EXPORT_GUIDE_PATH, pageFromLocation, PAGES, type Page } from './lib/pages';
+import { pageFromLocation, PAGES, type Page } from './lib/pages';
 import { updatePageMetadata } from './lib/seo';
 import { useTheme } from './hooks/useTheme';
 import type {
@@ -139,6 +139,23 @@ export default function App({ initialPage }: { initialPage?: Page }) {
   const [isCiteOpen, setIsCiteOpen] = useState(false);
   const [tikzMode, setTikzMode] = useState<'2d' | '3d'>('2d');
   const [exportScale, setExportScale] = useState(1.2);
+  const [exportAspectRatios, setExportAspectRatios] = useState<Record<'2d' | '3d', ExportAspectRatio>>({ '2d': 1, '3d': 'equal' });
+  const [exportView, setExportView] = useState({ viewport: DEFAULT_VIEWPORT, viewport3D: DEFAULT_VIEWPORT_3D, screenAspectRatio: 1 });
+  const exportAspectRatio = typeof exportAspectRatios['2d'] === 'number' ? exportAspectRatios['2d'] : exportView.screenAspectRatio;
+  const exportAspectRatio3D = typeof exportAspectRatios['3d'] === 'number' ? exportAspectRatios['3d']
+    : exportAspectRatios['3d'] === 'screen' ? exportView.screenAspectRatio : undefined;
+  const exportEqualAxes = exportAspectRatios['3d'] === 'equal';
+
+  const openTikzExport = (mode: '2d' | '3d') => {
+    const bounds = document.querySelector('.graph-frame canvas')?.getBoundingClientRect();
+    setExportView({
+      viewport: { ...viewport },
+      viewport3D: { ...viewport3D },
+      screenAspectRatio: bounds && bounds.width > 0 && bounds.height > 0 ? bounds.width / bounds.height : 1
+    });
+    setTikzMode(mode);
+    setIsTikzOpen(true);
+  };
 
   useEffect(() => {
     const onLocationChange = () => {
@@ -197,22 +214,25 @@ export default function App({ initialPage }: { initialPage?: Page }) {
     () =>
       generateTikzExport({
         expressions: preparedExpressions,
-        viewport,
+        viewport: exportView.viewport,
         settings,
-        scale: exportScale
+        scale: exportScale,
+        aspectRatio: exportAspectRatio
       }),
-    [preparedExpressions, settings, viewport, exportScale]
+    [preparedExpressions, settings, exportView.viewport, exportScale, exportAspectRatio]
   );
 
   const tikzCode3D = useMemo(
     () =>
       generateTikzExport3D({
         expressions: preparedExpressions3D,
-        viewport: viewport3D,
+        viewport: exportView.viewport3D,
         settings: settings3D,
-        scale: exportScale
+        scale: exportScale,
+        aspectRatio: exportAspectRatio3D,
+        equalAxes: exportEqualAxes
       }),
-    [preparedExpressions3D, settings3D, viewport3D, exportScale]
+    [preparedExpressions3D, settings3D, exportView.viewport3D, exportScale, exportAspectRatio3D, exportEqualAxes]
   );
 
   const updateExpression = (id: string, patch: Partial<Expression>) => {
@@ -330,7 +350,7 @@ export default function App({ initialPage }: { initialPage?: Page }) {
       </header>
 
       {page === '2d' ? (
-        <GraphWorkspace mode="2d" onAdd={addExpression} onExport={() => { setTikzMode('2d'); setIsTikzOpen(true); }}
+        <GraphWorkspace mode="2d" onAdd={addExpression} onExport={() => openTikzExport('2d')}
           onReset={resetView}
           onZoom={(factor) => setViewport((prev) => zoomAt(prev, (prev.xMin + prev.xMax) / 2, (prev.yMin + prev.yMax) / 2, factor))}
           controls={
@@ -360,7 +380,7 @@ export default function App({ initialPage }: { initialPage?: Page }) {
             />
         </GraphWorkspace>
       ) : page === '3d' ? (
-        <GraphWorkspace mode="3d" onAdd={addExpression3D} onExport={() => { setTikzMode('3d'); setIsTikzOpen(true); }}
+        <GraphWorkspace mode="3d" onAdd={addExpression3D} onExport={() => openTikzExport('3d')}
           onReset={() => setViewport3D(DEFAULT_VIEWPORT_3D)}
           onZoom={(factor) => setViewport3D((prev) => zoomCamera3D(prev, factor))}
           controls={
@@ -394,7 +414,6 @@ export default function App({ initialPage }: { initialPage?: Page }) {
       <footer className="app-footer">
         <span>{page === 'misc' ? 'Math tools for LaTeX' : page === 'diagram' ? 'Made for Math 221 at Harvard University' : 'Made for Econ1011b at Harvard University'}</span>
         <a className="software-license" href="https://github.com/rgrossharv/graphtotex/blob/main/LICENSE" target="_blank" rel="noreferrer">Public domain software</a>
-        <a href={EXPORT_GUIDE_PATH}>Desmos to TikZ guide</a>
         <a href="https://github.com/rgrossharv/graphtotex" target="_blank" rel="noreferrer">
           GraphToTeX Repository
         </a>
@@ -409,6 +428,9 @@ export default function App({ initialPage }: { initialPage?: Page }) {
         tikzCode={tikzMode === '2d' ? tikzCode : tikzCode3D}
         scale={exportScale}
         onScaleChange={setExportScale}
+        aspectRatio={exportAspectRatios[tikzMode]}
+        screenAspectRatio={exportView.screenAspectRatio}
+        onAspectRatioChange={(aspectRatio) => setExportAspectRatios((prev) => ({ ...prev, [tikzMode]: aspectRatio }))}
         onClose={() => setIsTikzOpen(false)}
       />
     </div>

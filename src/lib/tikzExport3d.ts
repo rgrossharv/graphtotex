@@ -8,6 +8,8 @@ interface TikzExport3DInput {
   viewport: Viewport3D;
   settings: GraphSettings3D;
   scale?: number;
+  aspectRatio?: number;
+  equalAxes?: boolean;
 }
 
 function hexToRgb(hex: string): { r: number; g: number; b: number } {
@@ -110,7 +112,7 @@ function boxLines(viewport: Viewport3D): string[] {
   ));
 }
 
-export function generateTikzExport3D({ expressions, viewport, settings, scale = 1.2 }: TikzExport3DInput): string {
+export function generateTikzExport3D({ expressions, viewport, settings, scale = 1.2, aspectRatio = 1, equalAxes = true }: TikzExport3DInput): string {
   // Convert the preview's xy projection into PGFPlots' xz projection.
   const azimuth = ((-viewport.yaw * 180 / Math.PI) % 360 + 360) % 360;
   const elevation = 90 + viewport.pitch * 180 / Math.PI;
@@ -128,7 +130,8 @@ export function generateTikzExport3D({ expressions, viewport, settings, scale = 
     `  xmin=${formatNumber(viewport.xMin)}, xmax=${formatNumber(viewport.xMax)},`,
     `  ymin=${formatNumber(viewport.yMin)}, ymax=${formatNumber(viewport.yMax)},`,
     `  zmin=${formatNumber(viewport.zMin)}, zmax=${formatNumber(viewport.zMax)},`,
-    `  width=${formatNumber(9 * scale)}cm, height=${formatNumber(7 * scale)}cm, scale only axis,`,
+    `  width=${formatNumber(9 * scale)}cm, height=${formatNumber((aspectRatio ? 9 / aspectRatio : 7) * scale)}cm, scale only axis,`,
+    ...(equalAxes ? ['  axis equal image,'] : []),
     settings.showAxes ? '  xlabel={$x$}, ylabel={$y$}, zlabel={$z$},' : '  xticklabels=\\empty, yticklabels=\\empty, zticklabels=\\empty, tick style={draw=none},',
     '  enlargelimits=false, clip=true, clip mode=individual]'
   ];

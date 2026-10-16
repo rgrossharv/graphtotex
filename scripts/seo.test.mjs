@@ -67,7 +67,7 @@ test('the Desmos to TikZ guide has readable content, metadata, and workspace lin
   assert.equal(schema.url, `https://graphtotex.com${EXPORT_GUIDE_PATH}`);
   for (const { path } of Object.values(PAGES)) {
     const workspace = await readFile(resolve('dist', `.${path}`, 'index.html'), 'utf8');
-    assert.ok(workspace.includes(`href="${EXPORT_GUIDE_PATH}"`));
+    assert.doesNotMatch(workspace.match(/<footer[\s\S]*?<\/footer>/)[0], /desmos/i);
   }
 });
 

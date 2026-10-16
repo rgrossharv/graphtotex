@@ -5,9 +5,6 @@ import { formatNumber } from '../lib/formatting';
 interface ControlsBarProps {
   viewport: Viewport;
   settings: GraphSettings;
-  onAddExpression: () => void;
-  onExport: () => void;
-  onResetView: () => void;
   onLoadExample: (example: string) => void;
   onSettingsChange: (patch: Partial<GraphSettings>) => void;
   onViewportSubmit: (next: Viewport) => void;
@@ -16,9 +13,6 @@ interface ControlsBarProps {
 export default function ControlsBar({
   viewport,
   settings,
-  onAddExpression,
-  onExport,
-  onResetView,
   onLoadExample,
   onSettingsChange,
   onViewportSubmit
@@ -75,10 +69,6 @@ export default function ControlsBar({
 
   return (
     <div className="controls-bar">
-      <button onClick={onAddExpression}>+ Add Expression</button>
-      <button onClick={onExport}>Export TikZ</button>
-      <button onClick={onResetView}>Reset View</button>
-
       <label>
         Examples
         <select defaultValue="" onChange={(event) => event.target.value && onLoadExample(event.target.value)}>

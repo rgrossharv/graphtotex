@@ -5,6 +5,7 @@ import ExpressionList from './components/ExpressionList';
 import ExpressionList3D from './components/ExpressionList3D';
 import GraphCanvas from './components/GraphCanvas';
 import GraphCanvas3D from './components/GraphCanvas3D';
+import GraphWorkspace from './components/GraphWorkspace';
 import TikzModal from './components/TikzModal';
 import DiagramEditor from './components/DiagramEditor';
 import CiteGraphModal from './components/CiteGraphModal';
@@ -12,8 +13,8 @@ import { prepareMath } from './lib/mathParser';
 import { prepareMath3D } from './lib/mathParser3d';
 import { generateTikzExport } from './lib/tikzExport';
 import { generateTikzExport3D } from './lib/tikzExport3d';
-import { DEFAULT_VIEWPORT_3D, clampViewport3D } from './lib/viewport3d';
-import { clampViewport, DEFAULT_VIEWPORT } from './lib/viewport';
+import { DEFAULT_VIEWPORT_3D, clampViewport3D, zoomCamera3D } from './lib/viewport3d';
+import { clampViewport, DEFAULT_VIEWPORT, zoomAt } from './lib/viewport';
 import { pageFromLocation, PAGES, type Page } from './lib/pages';
 import { updatePageMetadata } from './lib/seo';
 import { useTheme } from './hooks/useTheme';
@@ -116,12 +117,6 @@ function currentPage(): Page {
 export default function App({ initialPage }: { initialPage?: Page }) {
   const { theme, toggleTheme } = useTheme();
   const [page, setPage] = useState<Page>(() => initialPage ?? currentPage());
-  const [isMobile, setIsMobile] = useState<boolean>(() => {
-    if (typeof window === 'undefined') {
-      return false;
-    }
-    return window.matchMedia('(max-width: 980px)').matches;
-  });
 
   const [expressions, setExpressions] = useState<Expression[]>(INITIAL_EXPRESSIONS);
   const [viewport, setViewport] = useState<Viewport>(DEFAULT_VIEWPORT);
@@ -161,13 +156,6 @@ export default function App({ initialPage }: { initialPage?: Page }) {
       window.removeEventListener('hashchange', onLocationChange);
       window.removeEventListener('popstate', onLocationChange);
     };
-  }, []);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(max-width: 980px)');
-    const onChange = (event: MediaQueryListEvent) => setIsMobile(event.matches);
-    mediaQuery.addEventListener('change', onChange);
-    return () => mediaQuery.removeEventListener('change', onChange);
   }, []);
 
   const preparedExpressions = useMemo<PreparedExpression[]>(
@@ -231,7 +219,16 @@ export default function App({ initialPage }: { initialPage?: Page }) {
   };
 
   const addExpression = () => {
-    setExpressions((prev) => [...prev, createExpression('')]);
+    const expression = createExpression('');
+    setExpressions((prev) => [...prev, expression]);
+    requestAnimationFrame(() => document.getElementById(expression.id)?.focus());
+  };
+
+  const resetView = () => {
+    const graph = document.querySelector('.graph-frame');
+    const bounds = graph?.getBoundingClientRect();
+    const aspect = bounds?.width ? bounds.height / bounds.width : 1;
+    setViewport({ ...DEFAULT_VIEWPORT, yMin: DEFAULT_VIEWPORT.yMin * aspect, yMax: DEFAULT_VIEWPORT.yMax * aspect });
   };
 
   const removeExpression = (id: string) => {
@@ -262,7 +259,9 @@ export default function App({ initialPage }: { initialPage?: Page }) {
   };
 
   const addExpression3D = () => {
-    setExpressions3D((prev) => [...prev, createExpression3D('')]);
+    const expression = createExpression3D('');
+    setExpressions3D((prev) => [...prev, expression]);
+    requestAnimationFrame(() => document.getElementById(expression.id)?.focus());
   };
 
   const removeExpression3D = (id: string) => {
@@ -309,8 +308,7 @@ export default function App({ initialPage }: { initialPage?: Page }) {
             {page === '2d'
               ? 'Interactive graphing calculator with direct TikZ export.'
               : page === '3d' ? 'Interactive 3D surface graphing workspace with live controls.'
-              : 'Build commutative diagrams with LaTeX labels and direct TikZ export.'}{' '}
-            {isMobile ? <span>(Best Used on Desktop)</span> : null}
+              : 'Build commutative diagrams with LaTeX labels and direct TikZ export.'}
           </p>
         </div>
         <div className="header-actions">
@@ -318,38 +316,31 @@ export default function App({ initialPage }: { initialPage?: Page }) {
             {(Object.entries(PAGES) as [Page, typeof PAGES[Page]][]).map(([key, metadata]) => (
               <a key={key} href={metadata.path} className={page === key ? 'is-active' : ''}
                 aria-current={page === key ? 'page' : undefined} onClick={(event) => navigateTo(event, key)}>
-                {metadata.label}
+                {key === '2d' ? '2D' : key === '3d' ? '3D' : metadata.label}
               </a>
             ))}
           </div>
           <button type="button" className="theme-toggle" onClick={toggleTheme}
-            aria-label="Dark mode" aria-pressed={theme === 'dark'} title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
-            <span aria-hidden="true">{theme === 'dark' ? '☀' : '☾'}</span>
-            {theme === 'dark' ? 'Light mode' : 'Dark mode'}
+            role="switch" aria-label="Dark mode" aria-checked={theme === 'dark'} title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
+            <span className="theme-toggle-thumb" aria-hidden="true" />
           </button>
         </div>
       </header>
 
       {page === '2d' ? (
-        <main className="workspace-layout">
-          <aside className="right-panel">
+        <GraphWorkspace mode="2d" onAdd={addExpression} onExport={() => { setTikzMode('2d'); setIsTikzOpen(true); }}
+          onReset={resetView}
+          onZoom={(factor) => setViewport((prev) => zoomAt(prev, (prev.xMin + prev.xMax) / 2, (prev.yMin + prev.yMax) / 2, factor))}
+          controls={
             <ControlsBar
               viewport={viewport}
               settings={settings}
-              onAddExpression={addExpression}
-              onExport={() => {
-                setTikzMode('2d');
-                setIsTikzOpen(true);
-              }}
-              onResetView={() => setViewport(DEFAULT_VIEWPORT)}
               onLoadExample={(example) => setExpressions(exampleExpressions(example))}
               onSettingsChange={(patch) => setSettings((prev) => ({ ...prev, ...patch }))}
               onViewportSubmit={(next) => setViewport(clampViewport(next))}
             />
-          </aside>
-
-          <aside className="left-panel">
-            <h2>Expressions</h2>
+          }
+          expressions={
             <ExpressionList
               expressions={preparedExpressions}
               onChange={updateExpression}
@@ -357,9 +348,7 @@ export default function App({ initialPage }: { initialPage?: Page }) {
               onMoveUp={(id) => moveExpression(id, -1)}
               onMoveDown={(id) => moveExpression(id, 1)}
             />
-          </aside>
-
-          <section className="graph-panel">
+          }>
             <GraphCanvas
               theme={theme}
               expressions={preparedExpressions}
@@ -367,28 +356,21 @@ export default function App({ initialPage }: { initialPage?: Page }) {
               settings={settings}
               onViewportChange={(next) => setViewport(clampViewport(next))}
             />
-          </section>
-        </main>
+        </GraphWorkspace>
       ) : page === '3d' ? (
-        <main className="workspace-layout">
-          <aside className="right-panel">
+        <GraphWorkspace mode="3d" onAdd={addExpression3D} onExport={() => { setTikzMode('3d'); setIsTikzOpen(true); }}
+          onReset={() => setViewport3D(DEFAULT_VIEWPORT_3D)}
+          onZoom={(factor) => setViewport3D((prev) => zoomCamera3D(prev, factor))}
+          controls={
             <ControlsBar3D
               viewport={viewport3D}
               settings={settings3D}
-              onAddExpression={addExpression3D}
-              onExport={() => {
-                setTikzMode('3d');
-                setIsTikzOpen(true);
-              }}
-              onResetView={() => setViewport3D(DEFAULT_VIEWPORT_3D)}
               onLoadExample={(example) => setExpressions3D(exampleExpressions3D(example))}
               onSettingsChange={(patch) => setSettings3D((prev) => ({ ...prev, ...patch }))}
               onViewportSubmit={(next) => setViewport3D(clampViewport3D(next))}
             />
-          </aside>
-
-          <aside className="left-panel">
-            <h2>Surfaces</h2>
+          }
+          expressions={
             <ExpressionList3D
               expressions={preparedExpressions3D}
               onChange={updateExpression3D}
@@ -396,9 +378,7 @@ export default function App({ initialPage }: { initialPage?: Page }) {
               onMoveUp={(id) => moveExpression3D(id, -1)}
               onMoveDown={(id) => moveExpression3D(id, 1)}
             />
-          </aside>
-
-          <section className="graph-panel">
+          }>
             <GraphCanvas3D
               theme={theme}
               expressions={preparedExpressions3D}
@@ -406,8 +386,7 @@ export default function App({ initialPage }: { initialPage?: Page }) {
               settings={settings3D}
               onViewportChange={(next) => setViewport3D(clampViewport3D(next))}
             />
-          </section>
-        </main>
+        </GraphWorkspace>
       ) : <DiagramEditor />}
 
       <footer className="app-footer">

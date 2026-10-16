@@ -7,7 +7,7 @@ import {
 } from 'react';
 import type { GraphSettings, PreparedExpression, Viewport } from '../types';
 import { parseDomainBounds, sampleExpression, sampleImplicitContours } from '../lib/mathParser';
-import { buildTicks, panByPixels, screenToWorld, worldToScreen, zoomAt, zoomAtByAxis } from '../lib/viewport';
+import { buildTicks, DEFAULT_VIEWPORT, panByPixels, screenToWorld, worldToScreen, zoomAt, zoomAtByAxis } from '../lib/viewport';
 
 interface GraphCanvasProps {
   theme: 'light' | 'dark';
@@ -32,33 +32,41 @@ function drawGraph(
   const color = (name: string) => palette.getPropertyValue(name).trim();
   const width = canvas.width;
   const height = canvas.height;
+  const dpr = window.devicePixelRatio || 1;
+  const xTickCount = Math.max(2, width / dpr / 95);
+  const yTickCount = Math.max(2, height / dpr / 95);
 
   ctx.clearRect(0, 0, width, height);
   ctx.fillStyle = color('--canvas-bg');
   ctx.fillRect(0, 0, width, height);
 
   if (settings.showGrid) {
-    const xTicks = buildTicks(viewport.xMin, viewport.xMax, 16);
-    const yTicks = buildTicks(viewport.yMin, viewport.yMax, 12);
-
-    ctx.strokeStyle = color('--graph-grid');
-    ctx.lineWidth = 1;
-
-    xTicks.forEach((x) => {
-      const { px } = worldToScreen(x, viewport.yMin, width, height, viewport);
+    const xTicks = buildTicks(viewport.xMin, viewport.xMax, xTickCount);
+    const yTicks = buildTicks(viewport.yMin, viewport.yMax, yTickCount);
+    const drawGrid = (xs: number[], ys: number[], stroke: string) => {
+      ctx.strokeStyle = stroke;
+      ctx.lineWidth = 0.6 * dpr;
       ctx.beginPath();
-      ctx.moveTo(px, 0);
-      ctx.lineTo(px, height);
+      xs.forEach((x) => {
+        const { px } = worldToScreen(x, viewport.yMin, width, height, viewport);
+        ctx.moveTo(px, 0);
+        ctx.lineTo(px, height);
+      });
+      ys.forEach((y) => {
+        const { py } = worldToScreen(viewport.xMin, y, width, height, viewport);
+        ctx.moveTo(0, py);
+        ctx.lineTo(width, py);
+      });
       ctx.stroke();
-    });
-
-    yTicks.forEach((y) => {
-      const { py } = worldToScreen(viewport.xMin, y, width, height, viewport);
-      ctx.beginPath();
-      ctx.moveTo(0, py);
-      ctx.lineTo(width, py);
-      ctx.stroke();
-    });
+    };
+    const subdivisions = (ticks: number[]) => {
+      if (ticks.length < 2) return [];
+      const step = ticks[1] - ticks[0];
+      return Array.from({ length: ticks.length + 1 }, (_, index) => ticks[0] + (index - 1) * step)
+        .flatMap((tick) => Array.from({ length: 4 }, (_, i) => tick + step * (i + 1) / 5));
+    };
+    drawGrid(subdivisions(xTicks), subdivisions(yTicks), color('--graph-grid-minor'));
+    drawGrid(xTicks, yTicks, color('--graph-grid'));
   }
 
   if (settings.showAxes) {
@@ -66,7 +74,7 @@ function drawGraph(
     const xZeroVisible = viewport.xMin <= 0 && viewport.xMax >= 0;
 
     ctx.strokeStyle = color('--graph-axis');
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 1.1 * dpr;
 
     if (yZeroVisible) {
       const { py } = worldToScreen(viewport.xMin, 0, width, height, viewport);
@@ -85,12 +93,13 @@ function drawGraph(
     }
 
     if (settings.showTicks && xZeroVisible && yZeroVisible) {
-      const xTicks = buildTicks(viewport.xMin, viewport.xMax, 16);
-      const yTicks = buildTicks(viewport.yMin, viewport.yMax, 12);
+      const xTicks = buildTicks(viewport.xMin, viewport.xMax, xTickCount);
+      const yTicks = buildTicks(viewport.yMin, viewport.yMax, yTickCount);
 
       ctx.fillStyle = color('--text');
-      ctx.font = '24px Manrope, sans-serif';
-      ctx.lineWidth = 1;
+      ctx.font = `${12 * dpr}px Arial, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
 
       xTicks.forEach((x) => {
         if (Math.abs(x) < 1e-9) {
@@ -98,25 +107,22 @@ function drawGraph(
         }
 
         const { px, py } = worldToScreen(x, 0, width, height, viewport);
-        ctx.beginPath();
-        ctx.moveTo(px, py - 6);
-        ctx.lineTo(px, py + 6);
-        ctx.stroke();
-        ctx.fillText(Number(x.toFixed(3)).toString(), px + 3, py + 20);
+        ctx.fillText(Number(x.toFixed(3)).toString(), Math.max(14 * dpr, Math.min(width - 14 * dpr, px)), py + 5 * dpr);
       });
 
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
       yTicks.forEach((y) => {
         if (Math.abs(y) < 1e-9) {
           return;
         }
 
         const { px, py } = worldToScreen(0, y, width, height, viewport);
-        ctx.beginPath();
-        ctx.moveTo(px - 6, py);
-        ctx.lineTo(px + 6, py);
-        ctx.stroke();
-        ctx.fillText(Number(y.toFixed(3)).toString(), px + 8, py - 6);
+        ctx.fillText(Number(y.toFixed(3)).toString(), px - 5 * dpr, Math.max(9 * dpr, Math.min(height - 9 * dpr, py)));
       });
+      const origin = worldToScreen(0, 0, width, height, viewport);
+      ctx.textBaseline = 'top';
+      ctx.fillText('0', origin.px - 5 * dpr, origin.py + 5 * dpr);
     }
   }
 
@@ -205,6 +211,11 @@ export default function GraphCanvas({ theme, expressions, viewport, settings, on
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [size, setSize] = useState({ width: 560, height: 560 });
+  const previousSizeRef = useRef<{ width: number; height: number } | null>(null);
+  const viewportRef = useRef(viewport);
+  const onViewportChangeRef = useRef(onViewportChange);
+  viewportRef.current = viewport;
+  onViewportChangeRef.current = onViewportChange;
 
   const draggingRef = useRef(false);
   const lastPosRef = useRef({ x: 0, y: 0 });
@@ -217,10 +228,23 @@ export default function GraphCanvas({ theme, expressions, viewport, settings, on
 
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
-        const nextWidth = Math.max(240, Math.round(entry.contentRect.width));
-        const nextHeight = Math.max(240, Math.round(entry.contentRect.height));
-        const side = Math.min(nextWidth, nextHeight);
-        setSize({ width: side, height: side });
+        const width = Math.max(1, Math.round(entry.contentRect.width));
+        const height = Math.max(1, Math.round(entry.contentRect.height));
+        const previous = previousSizeRef.current;
+        if (previous?.width === width && previous.height === height) continue;
+        const current = viewportRef.current;
+        const centerX = (current.xMin + current.xMax) / 2;
+        const centerY = (current.yMin + current.yMax) / 2;
+        const xSpan = (current.xMax - current.xMin) * (previous ? width / previous.width : 1);
+        const isDefault = current.xMin === DEFAULT_VIEWPORT.xMin && current.xMax === DEFAULT_VIEWPORT.xMax
+          && current.yMin === DEFAULT_VIEWPORT.yMin && current.yMax === DEFAULT_VIEWPORT.yMax;
+        const ySpan = previous
+          ? (current.yMax - current.yMin) * height / previous.height
+          : isDefault ? xSpan * height / width : current.yMax - current.yMin;
+        previousSizeRef.current = { width, height };
+        setSize({ width, height });
+        onViewportChangeRef.current({ xMin: centerX - xSpan / 2, xMax: centerX + xSpan / 2,
+          yMin: centerY - ySpan / 2, yMax: centerY + ySpan / 2 });
       }
     });
 

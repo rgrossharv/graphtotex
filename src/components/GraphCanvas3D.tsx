@@ -96,7 +96,7 @@ function createProjector(viewport: Viewport3D, width: number, height: number) {
 
   const cx = width / 2;
   const cy = height / 2;
-  const scale = Math.min(width, height) * 0.45;
+  const scale = Math.min(width, height) * 0.68;
 
   return (x: number, y: number, z: number): ScreenPoint | null => {
     const nx = (x - xCenter) * normalize;
@@ -428,10 +428,9 @@ export default function GraphCanvas3D({ theme, expressions, viewport, settings, 
 
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
-        const nextWidth = Math.max(260, Math.round(entry.contentRect.width));
-        const nextHeight = Math.max(260, Math.round(entry.contentRect.height));
-        const side = Math.min(nextWidth, nextHeight);
-        setSize({ width: side, height: side });
+        const width = Math.max(1, Math.round(entry.contentRect.width));
+        const height = Math.max(1, Math.round(entry.contentRect.height));
+        setSize({ width, height });
       }
     });
 

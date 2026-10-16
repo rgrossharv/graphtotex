@@ -5,9 +5,6 @@ import { formatNumber } from '../lib/formatting';
 interface ControlsBar3DProps {
   viewport: Viewport3D;
   settings: GraphSettings3D;
-  onAddExpression: () => void;
-  onExport: () => void;
-  onResetView: () => void;
   onLoadExample: (example: string) => void;
   onSettingsChange: (patch: Partial<GraphSettings3D>) => void;
   onViewportSubmit: (next: Viewport3D) => void;
@@ -16,9 +13,6 @@ interface ControlsBar3DProps {
 export default function ControlsBar3D({
   viewport,
   settings,
-  onAddExpression,
-  onExport,
-  onResetView,
   onLoadExample,
   onSettingsChange,
   onViewportSubmit
@@ -86,10 +80,6 @@ export default function ControlsBar3D({
 
   return (
     <div className="controls-bar">
-      <button onClick={onAddExpression}>+ Add Surface</button>
-      <button onClick={onExport}>Export TikZ 3D</button>
-      <button onClick={onResetView}>Reset View</button>
-
       <label>
         Examples
         <select defaultValue="" onChange={(event) => event.target.value && onLoadExample(event.target.value)}>

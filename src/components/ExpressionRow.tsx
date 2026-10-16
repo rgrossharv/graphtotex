@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { Expression, PreparedExpression } from '../types';
 import { renderMathPreview } from '../lib/formatting';
+import GraphIcon from './GraphIcon';
 
 interface ExpressionRowProps {
   expression: PreparedExpression;
@@ -29,49 +30,35 @@ export default function ExpressionRow({
   );
 
   return (
-    <div className="expr-row">
+    <div className={`expr-row${expression.error ? ' has-error' : ''}`}>
+      <div className="expr-gutter">
+        <span className="expr-number">{index + 1}</span>
+        <button className={`swatch${expression.visible ? '' : ' is-hidden'}`} style={{ color: expression.color }}
+          onClick={() => onChange(expression.id, { visible: !expression.visible })}
+          title={expression.visible ? 'Hide expression' : 'Show expression'}
+          aria-label={expression.visible ? `Hide expression ${index + 1}` : `Show expression ${index + 1}`}
+          aria-pressed={expression.visible} />
+      </div>
       <div className="expr-topline">
-        <button
-          className="swatch"
-          style={{ backgroundColor: expression.color }}
-          title="Expression color"
-          aria-label="Expression color"
-        />
         <input
+          id={expression.id}
           className="expr-input"
+          aria-label={`Expression ${index + 1}`}
+          autoComplete="off"
+          autoCapitalize="off"
+          spellCheck={false}
           placeholder="Type f(x) or equation, e.g. sin(x), x^2, y^2+x^2=1"
           value={expression.rawInput}
           onChange={(event) => onChange(expression.id, { rawInput: event.target.value })}
         />
         <div className="expr-actions">
-          <button
-            className={`icon-btn visibility-btn ${expression.visible ? 'is-on' : ''}`}
-            onClick={() => onChange(expression.id, { visible: !expression.visible })}
-            title={expression.visible ? 'Hide expression' : 'Show expression'}
-          >
-            {expression.visible ? 'ON' : 'OFF'}
+          <button className="icon-btn" onClick={() => setShowSettings((v) => !v)} title="Expression settings"
+            aria-label={`Settings for expression ${index + 1}`} aria-expanded={showSettings} aria-controls={`${expression.id}-settings`}>
+            <GraphIcon name="settings" />
           </button>
-          <button className="icon-btn" onClick={() => setShowSettings((v) => !v)} title="Settings">
-            CFG
-          </button>
-          <button
-            className="icon-btn"
-            onClick={() => onMoveUp(expression.id)}
-            disabled={index === 0}
-            title="Move up"
-          >
-            UP
-          </button>
-          <button
-            className="icon-btn"
-            onClick={() => onMoveDown(expression.id)}
-            disabled={index === total - 1}
-            title="Move down"
-          >
-            DN
-          </button>
-          <button className="icon-btn danger" onClick={() => onRemove(expression.id)} title="Delete expression">
-            DEL
+          <button className="icon-btn danger" onClick={() => onRemove(expression.id)} disabled={total <= 1}
+            title="Delete expression" aria-label={`Delete expression ${index + 1}`}>
+            <GraphIcon name="close" />
           </button>
         </div>
       </div>
@@ -81,7 +68,12 @@ export default function ExpressionRow({
       {expression.error && <div className="expr-error">{expression.error}</div>}
 
       {showSettings && (
-        <div className="expr-settings">
+        <div className="expr-settings" id={`${expression.id}-settings`}>
+          <div className="expr-reorder">
+            <span>Order</span>
+            <button className="icon-btn" onClick={() => onMoveUp(expression.id)} disabled={index === 0} title="Move up" aria-label="Move expression up"><GraphIcon name="up" /></button>
+            <button className="icon-btn" onClick={() => onMoveDown(expression.id)} disabled={index === total - 1} title="Move down" aria-label="Move expression down"><GraphIcon name="down" /></button>
+          </div>
           <label>
             Domain min
             <input

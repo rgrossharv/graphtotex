@@ -31,6 +31,12 @@ export interface GraphSettings3D {
   showBox: boolean;
 }
 
+export interface ExportAxisScales {
+  x: number;
+  y: number;
+  z: number;
+}
+
 export interface Expression {
   id: string;
   rawInput: string;

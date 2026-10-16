@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
+import type { ExportAxisScales } from '../types';
 import TikzPreview, { type TikzVariant } from './TikzPreview';
 import './TikzModal.css';
 
-export type ExportAspectRatio = number | 'equal' | 'screen';
+export type ExportAspectRatio = number | 'equal' | 'screen' | 'custom';
 
 interface TikzModalProps {
   isOpen: boolean;
@@ -13,10 +14,27 @@ interface TikzModalProps {
   aspectRatio?: ExportAspectRatio;
   screenAspectRatio?: number;
   onAspectRatioChange?: (aspectRatio: ExportAspectRatio) => void;
+  axisScales?: ExportAxisScales;
+  onAxisScalesChange?: (axisScales: ExportAxisScales) => void;
   onClose: () => void;
 }
 
-export default function TikzModal({ isOpen, tikzCode, variant = '2d', scale, onScaleChange, aspectRatio, screenAspectRatio, onAspectRatioChange, onClose }: TikzModalProps) {
+function AxisScaleInput({ axis, value, onChange }: { axis: keyof ExportAxisScales; value: number; onChange: (value: number) => void }) {
+  const [draft, setDraft] = useState(String(value));
+  useEffect(() => setDraft(String(value)), [value]);
+
+  return <label className="export-scale">{axis.toUpperCase()} scale
+    <input type="number" min="0.01" max="100" step="any" value={draft} aria-describedby="export-axis-scales-note"
+      onChange={(event) => {
+        setDraft(event.target.value);
+        const next = event.target.valueAsNumber;
+        if (Number.isFinite(next) && next >= 0.01 && next <= 100) onChange(next);
+      }}
+      onBlur={() => setDraft(String(value))} />
+  </label>;
+}
+
+export default function TikzModal({ isOpen, tikzCode, variant = '2d', scale, onScaleChange, aspectRatio, screenAspectRatio, onAspectRatioChange, axisScales, onAxisScalesChange, onClose }: TikzModalProps) {
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState(false);
   const [completeDocument, setCompleteDocument] = useState(false);
@@ -121,7 +139,7 @@ export default function TikzModal({ isOpen, tikzCode, variant = '2d', scale, onS
           {onAspectRatioChange && (variant === '2d' || variant === '3d') && <label className="export-aspect-ratio">Aspect ratio{variant === '2d' ? ' (width:height)' : ''}
             <select value={aspectRatio ?? 1} onChange={(event) => {
               const value = event.target.value;
-              onAspectRatioChange(value === 'equal' || value === 'screen' ? value : Number(value));
+              onAspectRatioChange(value === 'equal' || value === 'screen' || value === 'custom' ? value : Number(value));
             }}>
               {variant === '3d' && <option value="equal">1:1:1 (Equal axes)</option>}
               <option value={1}>1:1 (Square)</option>
@@ -131,11 +149,20 @@ export default function TikzModal({ isOpen, tikzCode, variant = '2d', scale, onS
               <option value={3 / 4}>3:4 (Portrait)</option>
               <option value={2 / 3}>2:3 (Portrait)</option>
               {screenAspectRatio && <option value="screen">Screen ({screenAspectRatio.toFixed(2)}:1)</option>}
+              {onAxisScalesChange && <option value="custom">Custom axis scales…</option>}
             </select>
           </label>}
           {onAspectRatioChange && screenAspectRatio && <button type="button" className="export-match-screen"
             title="Use the graph's aspect ratio when Export was clicked" onClick={() => onAspectRatioChange('screen')}>Match screen</button>}
         </div>
+        {aspectRatio === 'custom' && axisScales && onAxisScalesChange && (variant === '2d' || variant === '3d') && <fieldset className="export-axis-scales">
+          <legend>Axis unit ratio ({variant === '3d' ? 'x:y:z' : 'x:y'})</legend>
+          <div className="export-options">
+            {(variant === '3d' ? ['x', 'y', 'z'] as const : ['x', 'y'] as const).map((axis) => <AxisScaleInput key={`${variant}-${axis}`} axis={axis} value={axisScales[axis]}
+              onChange={(value) => onAxisScalesChange({ ...axisScales, [axis]: value })} />)}
+          </div>
+          <p id="export-axis-scales-note">Values from 0.01 to 100. X = 0.5 and Y = 1 makes each x unit half the length of a y unit. Axis ranges stay the same; Export scale controls overall size.</p>
+        </fieldset>}
         <label className="export-document-toggle"><input type="checkbox" checked={completeDocument} onChange={(event) => setCompleteDocument(event.target.checked)} />Complete LaTeX document with required packages</label>
         <div className="export-content">
           <TikzPreview code={tikzCode} variant={variant} />

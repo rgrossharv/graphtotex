@@ -1,4 +1,4 @@
-import type { GraphSettings, PreparedExpression, Viewport } from '../types';
+import type { ExportAxisScales, GraphSettings, PreparedExpression, Viewport } from '../types';
 import type { OperatorNode } from 'mathjs';
 import { parseDomainBounds, sampleExpression } from './mathParser';
 import { convertAstToTikz } from './tikzExpr';
@@ -12,6 +12,7 @@ interface TikzExportInput {
   settings: GraphSettings;
   scale?: number;
   aspectRatio?: number;
+  axisScales?: Pick<ExportAxisScales, 'x' | 'y'>;
 }
 
 function hexToRgb(hex: string): { r: number; g: number; b: number } {
@@ -208,8 +209,9 @@ function expressionToTikz(expr: PreparedExpression, viewport: Viewport): string[
   return lines;
 }
 
-export function generateTikzExport({ expressions, viewport, settings, scale = 1.2, aspectRatio = 1 }: TikzExportInput): string {
-  const yUnit = aspectRatio ? (viewport.xMax - viewport.xMin) / (viewport.yMax - viewport.yMin) / aspectRatio : 1;
+export function generateTikzExport({ expressions, viewport, settings, scale = 1.2, aspectRatio = 1, axisScales }: TikzExportInput): string {
+  const xUnit = axisScales?.x ?? 1;
+  const yUnit = axisScales?.y ?? (aspectRatio ? (viewport.xMax - viewport.xMin) / (viewport.yMax - viewport.yMin) / aspectRatio : 1);
   const header = [
     '% GraphToTeX export',
     '% Scale tip: add scale=<value> in tikzpicture options, e.g. \\begin{tikzpicture}[scale=0.8, ...]',
@@ -217,7 +219,7 @@ export function generateTikzExport({ expressions, viewport, settings, scale = 1.
     '% Note: trig/inverse trig expressions are exported as sampled coordinates to preserve radian behavior.',
     '% Implicit curves use sampled contours; sample density controls their detail.',
     '\\begin{center}',
-    `\\begin{tikzpicture}[scale=${formatNumber(scale)}${aspectRatio ? `, x=1cm, y=${formatNumber(yUnit)}cm` : ''}, line cap=round, line join=round, >=Stealth]`,
+    `\\begin{tikzpicture}[scale=${formatNumber(scale)}${axisScales || aspectRatio ? `, x=${formatNumber(xUnit)}cm, y=${formatNumber(yUnit)}cm` : ''}, line cap=round, line join=round, >=Stealth]`,
     `\\clip (${formatNumber(viewport.xMin)},${formatNumber(viewport.yMin)}) rectangle (${formatNumber(
       viewport.xMax
     )},${formatNumber(viewport.yMax)});`

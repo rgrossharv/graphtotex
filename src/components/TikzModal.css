@@ -7,6 +7,9 @@
 .export-aspect-ratio { display: flex; align-items: center; gap: 0.6rem; margin: 0.75rem 0; font-size: 0.8rem; font-weight: 600; }
 .export-aspect-ratio select { padding: 0.35rem 0.45rem; border: 1px solid var(--border); border-radius: 4px; background: var(--input-bg); color: var(--text); font: inherit; }
 .export-match-screen { padding: 0.35rem 0.6rem; border: 1px solid var(--border); border-radius: 4px; background: var(--input-bg); color: var(--text); font: inherit; font-size: 0.8rem; cursor: pointer; }
+.export-axis-scales { min-width: 0; margin: 0 0 0.9rem; padding: 0 0.75rem 0.6rem; border: 1px solid var(--border); border-radius: 4px; }
+.export-axis-scales legend { padding: 0 0.3rem; font-size: 0.75rem; font-weight: 600; }
+.export-axis-scales p { margin: 0; color: var(--muted); font-size: 0.7rem; line-height: 1.6; }
 .tikz-export-modal .export-document-toggle { font-size: 0.75rem; }
 .tikz-export-modal input[type='checkbox'] { accent-color: var(--accent); }
 .export-content { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }

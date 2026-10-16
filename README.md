@@ -10,6 +10,8 @@ Navigation uses ordinary links and the History API. Existing `/#3d`, `/#diagram`
 
 Every TikZ export dialog includes a compiled figure preview. The TeX runtime (TikZJax 1.6.0) and fonts load from jsDelivr only when an export opens, and compilation happens in an isolated browser frame. The first preview needs an internet connection; copying and downloading the source still work if the renderer cannot load. The preview uses the generated figure code with its required packages, including PGFPlots and TikZ-CD, and fits the result to a white preview area.
 
+For 2D and 3D exports, choose **Custom axis scales…** in the aspect ratio menu to set the relative length of each axis unit (X/Y, plus Z in 3D). For example, X = 0.5 and Y = 1 squeezes the x axis while preserving the axis ranges. Export scale controls the overall figure size. Each graph mode remembers its own custom axis scales while the app is open.
+
 2D curves use adaptive sampling to resolve curvature and domain boundaries at the canvas resolution. Tangent and other functions with poles are split into separate branches, including when zoomed far out vertically. TikZ exports use the same sampled branches for functions and rational expressions.
 
 The static `/desmos-to-tikz/` guide explains how to recreate equations and export TikZ for LaTeX or Overleaf, including the current limitations on Desmos imports. It is linked from each workspace and included in the sitemap. Its content and links work without JavaScript. The calculator's title, description, and social metadata also describe its Desmos-style graphing and TikZ export.

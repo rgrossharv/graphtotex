@@ -20,6 +20,7 @@ import { pageFromLocation, PAGES, type Page } from './lib/pages';
 import { updatePageMetadata } from './lib/seo';
 import { useTheme } from './hooks/useTheme';
 import type {
+  ExportAxisScales,
   Expression,
   Expression3D,
   GraphSettings,
@@ -140,11 +141,17 @@ export default function App({ initialPage }: { initialPage?: Page }) {
   const [tikzMode, setTikzMode] = useState<'2d' | '3d'>('2d');
   const [exportScale, setExportScale] = useState(1.2);
   const [exportAspectRatios, setExportAspectRatios] = useState<Record<'2d' | '3d', ExportAspectRatio>>({ '2d': 1, '3d': 'equal' });
+  const [exportAxisScales, setExportAxisScales] = useState<Record<'2d' | '3d', ExportAxisScales>>({
+    '2d': { x: 1, y: 1, z: 1 },
+    '3d': { x: 1, y: 1, z: 1 }
+  });
   const [exportView, setExportView] = useState({ viewport: DEFAULT_VIEWPORT, viewport3D: DEFAULT_VIEWPORT_3D, screenAspectRatio: 1 });
   const exportAspectRatio = typeof exportAspectRatios['2d'] === 'number' ? exportAspectRatios['2d'] : exportView.screenAspectRatio;
   const exportAspectRatio3D = typeof exportAspectRatios['3d'] === 'number' ? exportAspectRatios['3d']
     : exportAspectRatios['3d'] === 'screen' ? exportView.screenAspectRatio : undefined;
   const exportEqualAxes = exportAspectRatios['3d'] === 'equal';
+  const exportAxisScales2D = exportAspectRatios['2d'] === 'custom' ? exportAxisScales['2d'] : undefined;
+  const exportAxisScales3D = exportAspectRatios['3d'] === 'custom' ? exportAxisScales['3d'] : undefined;
 
   const openTikzExport = (mode: '2d' | '3d') => {
     const bounds = document.querySelector('.graph-frame canvas')?.getBoundingClientRect();
@@ -217,9 +224,10 @@ export default function App({ initialPage }: { initialPage?: Page }) {
         viewport: exportView.viewport,
         settings,
         scale: exportScale,
-        aspectRatio: exportAspectRatio
+        aspectRatio: exportAspectRatio,
+        axisScales: exportAxisScales2D
       }),
-    [preparedExpressions, settings, exportView.viewport, exportScale, exportAspectRatio]
+    [preparedExpressions, settings, exportView.viewport, exportScale, exportAspectRatio, exportAxisScales2D]
   );
 
   const tikzCode3D = useMemo(
@@ -230,9 +238,10 @@ export default function App({ initialPage }: { initialPage?: Page }) {
         settings: settings3D,
         scale: exportScale,
         aspectRatio: exportAspectRatio3D,
-        equalAxes: exportEqualAxes
+        equalAxes: exportEqualAxes,
+        axisScales: exportAxisScales3D
       }),
-    [preparedExpressions3D, settings3D, exportView.viewport3D, exportScale, exportAspectRatio3D, exportEqualAxes]
+    [preparedExpressions3D, settings3D, exportView.viewport3D, exportScale, exportAspectRatio3D, exportEqualAxes, exportAxisScales3D]
   );
 
   const updateExpression = (id: string, patch: Partial<Expression>) => {
@@ -431,6 +440,8 @@ export default function App({ initialPage }: { initialPage?: Page }) {
         aspectRatio={exportAspectRatios[tikzMode]}
         screenAspectRatio={exportView.screenAspectRatio}
         onAspectRatioChange={(aspectRatio) => setExportAspectRatios((prev) => ({ ...prev, [tikzMode]: aspectRatio }))}
+        axisScales={exportAxisScales[tikzMode]}
+        onAxisScalesChange={(axisScales) => setExportAxisScales((prev) => ({ ...prev, [tikzMode]: axisScales }))}
         onClose={() => setIsTikzOpen(false)}
       />
     </div>

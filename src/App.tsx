@@ -16,6 +16,7 @@ import { DEFAULT_VIEWPORT_3D, clampViewport3D } from './lib/viewport3d';
 import { clampViewport, DEFAULT_VIEWPORT } from './lib/viewport';
 import { pageFromLocation, PAGES, type Page } from './lib/pages';
 import { updatePageMetadata } from './lib/seo';
+import { useTheme } from './hooks/useTheme';
 import type {
   Expression,
   Expression3D,
@@ -113,6 +114,7 @@ function currentPage(): Page {
 }
 
 export default function App({ initialPage }: { initialPage?: Page }) {
+  const { theme, toggleTheme } = useTheme();
   const [page, setPage] = useState<Page>(() => initialPage ?? currentPage());
   const [isMobile, setIsMobile] = useState<boolean>(() => {
     if (typeof window === 'undefined') {
@@ -311,13 +313,20 @@ export default function App({ initialPage }: { initialPage?: Page }) {
             {isMobile ? <span>(Best Used on Desktop)</span> : null}
           </p>
         </div>
-        <div className="page-switch" role="navigation" aria-label="Page selection">
-          {(Object.entries(PAGES) as [Page, typeof PAGES[Page]][]).map(([key, metadata]) => (
-            <a key={key} href={metadata.path} className={page === key ? 'is-active' : ''}
-              aria-current={page === key ? 'page' : undefined} onClick={(event) => navigateTo(event, key)}>
-              {metadata.label}
-            </a>
-          ))}
+        <div className="header-actions">
+          <div className="page-switch" role="navigation" aria-label="Page selection">
+            {(Object.entries(PAGES) as [Page, typeof PAGES[Page]][]).map(([key, metadata]) => (
+              <a key={key} href={metadata.path} className={page === key ? 'is-active' : ''}
+                aria-current={page === key ? 'page' : undefined} onClick={(event) => navigateTo(event, key)}>
+                {metadata.label}
+              </a>
+            ))}
+          </div>
+          <button type="button" className="theme-toggle" onClick={toggleTheme}
+            aria-label="Dark mode" aria-pressed={theme === 'dark'} title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
+            <span aria-hidden="true">{theme === 'dark' ? '☀' : '☾'}</span>
+            {theme === 'dark' ? 'Light mode' : 'Dark mode'}
+          </button>
         </div>
       </header>
 
@@ -352,6 +361,7 @@ export default function App({ initialPage }: { initialPage?: Page }) {
 
           <section className="graph-panel">
             <GraphCanvas
+              theme={theme}
               expressions={preparedExpressions}
               viewport={viewport}
               settings={settings}
@@ -390,6 +400,7 @@ export default function App({ initialPage }: { initialPage?: Page }) {
 
           <section className="graph-panel">
             <GraphCanvas3D
+              theme={theme}
               expressions={preparedExpressions3D}
               viewport={viewport3D}
               settings={settings3D}

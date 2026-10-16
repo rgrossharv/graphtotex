@@ -10,6 +10,7 @@ import { parseDomainBounds, sampleExpression, sampleImplicitContours } from '../
 import { buildTicks, panByPixels, screenToWorld, worldToScreen, zoomAt, zoomAtByAxis } from '../lib/viewport';
 
 interface GraphCanvasProps {
+  theme: 'light' | 'dark';
   expressions: PreparedExpression[];
   viewport: Viewport;
   settings: GraphSettings;
@@ -27,18 +28,20 @@ function drawGraph(
     return;
   }
 
+  const palette = getComputedStyle(canvas);
+  const color = (name: string) => palette.getPropertyValue(name).trim();
   const width = canvas.width;
   const height = canvas.height;
 
   ctx.clearRect(0, 0, width, height);
-  ctx.fillStyle = '#f7fafc';
+  ctx.fillStyle = color('--canvas-bg');
   ctx.fillRect(0, 0, width, height);
 
   if (settings.showGrid) {
     const xTicks = buildTicks(viewport.xMin, viewport.xMax, 16);
     const yTicks = buildTicks(viewport.yMin, viewport.yMax, 12);
 
-    ctx.strokeStyle = '#d9e3ec';
+    ctx.strokeStyle = color('--graph-grid');
     ctx.lineWidth = 1;
 
     xTicks.forEach((x) => {
@@ -62,7 +65,7 @@ function drawGraph(
     const yZeroVisible = viewport.yMin <= 0 && viewport.yMax >= 0;
     const xZeroVisible = viewport.xMin <= 0 && viewport.xMax >= 0;
 
-    ctx.strokeStyle = '#1f2937';
+    ctx.strokeStyle = color('--graph-axis');
     ctx.lineWidth = 2;
 
     if (yZeroVisible) {
@@ -85,7 +88,7 @@ function drawGraph(
       const xTicks = buildTicks(viewport.xMin, viewport.xMax, 16);
       const yTicks = buildTicks(viewport.yMin, viewport.yMax, 12);
 
-      ctx.fillStyle = '#111827';
+      ctx.fillStyle = color('--text');
       ctx.font = '24px Manrope, sans-serif';
       ctx.lineWidth = 1;
 
@@ -197,7 +200,7 @@ function normalizeWheelDelta(event: ReactWheelEvent<HTMLCanvasElement>, height: 
   return dominantDelta * modeScale;
 }
 
-export default function GraphCanvas({ expressions, viewport, settings, onViewportChange }: GraphCanvasProps) {
+export default function GraphCanvas({ theme, expressions, viewport, settings, onViewportChange }: GraphCanvasProps) {
   const frameRef = useRef<HTMLDivElement | null>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -238,7 +241,7 @@ export default function GraphCanvas({ expressions, viewport, settings, onViewpor
     canvas.style.height = `${size.height}px`;
 
     drawGraph(canvas, expressions, viewport, settings);
-  }, [expressions, settings, size, viewport]);
+  }, [expressions, settings, size, viewport, theme]);
 
   useEffect(() => {
     const onMouseMove = (event: MouseEvent) => {

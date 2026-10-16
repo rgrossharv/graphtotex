@@ -11,6 +11,7 @@ import { buildTicks } from '../lib/viewport';
 import { rotateViewport3D, scaleBounds3D, zoomCamera3D } from '../lib/viewport3d';
 
 interface GraphCanvas3DProps {
+  theme: 'light' | 'dark';
   expressions: PreparedExpression3D[];
   viewport: Viewport3D;
   settings: GraphSettings3D;
@@ -135,12 +136,14 @@ function drawGraph3D(
     return;
   }
 
+  const palette = getComputedStyle(canvas);
+  const color = (name: string) => palette.getPropertyValue(name).trim();
   const width = canvas.width;
   const height = canvas.height;
   const dpr = window.devicePixelRatio || 1;
 
   ctx.clearRect(0, 0, width, height);
-  ctx.fillStyle = '#f7fafc';
+  ctx.fillStyle = color('--canvas-bg');
   ctx.fillRect(0, 0, width, height);
 
   const project = createProjector(viewport, width, height);
@@ -192,7 +195,7 @@ function drawGraph3D(
     const yTicks = buildTicks(viewport.yMin, viewport.yMax, 10);
 
     const gridStyle: SegmentStyle = {
-      color: '#d6deea',
+      color: color('--graph-grid'),
       width: 1 * dpr,
       dashed: false
     };
@@ -208,7 +211,7 @@ function drawGraph3D(
 
   if (settings.showBox) {
     const boxStyle: SegmentStyle = {
-      color: '#b5c4d8',
+      color: color('--graph-box'),
       width: 1 * dpr,
       dashed: true
     };
@@ -239,17 +242,17 @@ function drawGraph3D(
   if (settings.showAxes) {
     const axisWidth = 1.8 * dpr;
     pushSegment(viewport.xMin, 0, 0, viewport.xMax, 0, 0, {
-      color: '#d94646',
+      color: color('--graph-x'),
       width: axisWidth,
       dashed: false
     });
     pushSegment(0, viewport.yMin, 0, 0, viewport.yMax, 0, {
-      color: '#2563eb',
+      color: color('--graph-y'),
       width: axisWidth,
       dashed: false
     });
     pushSegment(0, 0, viewport.zMin, 0, 0, viewport.zMax, {
-      color: '#0f766e',
+      color: color('--graph-z'),
       width: axisWidth,
       dashed: false
     });
@@ -389,7 +392,7 @@ function drawGraph3D(
   ctx.setLineDash([]);
 
   if (settings.showAxes) {
-    ctx.fillStyle = '#111827';
+    ctx.fillStyle = color('--text');
     ctx.font = `${12 * dpr}px Manrope, sans-serif`;
 
     const xLabel = project(viewport.xMax, 0, 0);
@@ -408,7 +411,7 @@ function drawGraph3D(
   }
 }
 
-export default function GraphCanvas3D({ expressions, viewport, settings, onViewportChange }: GraphCanvas3DProps) {
+export default function GraphCanvas3D({ theme, expressions, viewport, settings, onViewportChange }: GraphCanvas3DProps) {
   const frameRef = useRef<HTMLDivElement | null>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -449,7 +452,7 @@ export default function GraphCanvas3D({ expressions, viewport, settings, onViewp
     canvas.style.height = `${size.height}px`;
 
     drawGraph3D(canvas, expressions, viewport, settings);
-  }, [expressions, settings, size, viewport]);
+  }, [expressions, settings, size, viewport, theme]);
 
   useEffect(() => {
     const onMouseMove = (event: MouseEvent) => {

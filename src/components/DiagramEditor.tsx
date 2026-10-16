@@ -276,9 +276,9 @@ export default function DiagramEditor() {
             <defs>
               <pattern id="diagram-dot-grid" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="var(--border)" /></pattern>
               {diagram.arrows.map((arrow) => <g key={arrow.id}>
-                <marker id={`tip-${arrow.id}`} viewBox="0 0 12 12" refX="10" refY="6" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1L10 6L1 11" fill="none" stroke={arrow.color} strokeWidth="1.5" /></marker>
-                <marker id={`twohead-${arrow.id}`} viewBox="0 0 16 12" refX="14" refY="6" markerWidth="11" markerHeight="8" orient="auto"><path d="M1 1L8 6L1 11M7 1L14 6L7 11" fill="none" stroke={arrow.color} strokeWidth="1.5" /></marker>
-                <marker id={`hook-${arrow.id}`} viewBox="0 0 12 12" refX="2" refY="6" markerWidth="8" markerHeight="8" orient="auto"><path d="M10 6H5C0 6 0 0 5 0" fill="none" stroke={arrow.color} strokeWidth="1.5" /></marker>
+                <marker id={`tip-${arrow.id}`} viewBox="0 0 12 12" refX="10" refY="6" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1L10 6L1 11" fill="none" stroke={arrow.color === '#334155' ? 'var(--diagram-arrow)' : arrow.color} strokeWidth="1.5" /></marker>
+                <marker id={`twohead-${arrow.id}`} viewBox="0 0 16 12" refX="14" refY="6" markerWidth="11" markerHeight="8" orient="auto"><path d="M1 1L8 6L1 11M7 1L14 6L7 11" fill="none" stroke={arrow.color === '#334155' ? 'var(--diagram-arrow)' : arrow.color} strokeWidth="1.5" /></marker>
+                <marker id={`hook-${arrow.id}`} viewBox="0 0 12 12" refX="2" refY="6" markerWidth="8" markerHeight="8" orient="auto"><path d="M10 6H5C0 6 0 0 5 0" fill="none" stroke={arrow.color === '#334155' ? 'var(--diagram-arrow)' : arrow.color} strokeWidth="1.5" /></marker>
               </g>)}
             </defs>
             <rect x={left} y={top} width={width} height={height} fill={showGrid ? 'url(#diagram-dot-grid)' : 'transparent'} onPointerDown={() => { setSelection(null); if (sourceId) { setSourceId(null); setMessage('Connection cancelled. Choose a source object.'); } }} />
@@ -300,12 +300,12 @@ export default function DiagramEditor() {
                 onPointerDown={(event) => { event.stopPropagation(); setSelection({ kind: 'arrow', id: arrow.id }); setSourceId(null); }}
                 onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setSelection({ kind: 'arrow', id: arrow.id }); } }}>
                 {selected && <path d={geometry.path} className="diagram-arrow-highlight" />}
-                <path d={geometry.path} stroke={arrow.color} strokeWidth="1.8" strokeDasharray={arrow.dashed ? '7 5' : undefined} fill="none"
+                <path d={geometry.path} stroke={arrow.color === '#334155' ? 'var(--diagram-arrow)' : arrow.color} strokeWidth="1.8" strokeDasharray={arrow.dashed ? '7 5' : undefined} fill="none"
                   markerEnd={arrow.style === 'none' ? undefined : `url(#${arrow.style === 'twohead' ? 'twohead' : 'tip'}-${arrow.id})`}
                   markerStart={arrow.style === 'both' ? `url(#tip-${arrow.id})` : arrow.style === 'inclusion' ? `url(#hook-${arrow.id})` : undefined} />
                 <path d={geometry.path} className="diagram-arrow-hit" />
                 {arrow.label && <foreignObject x={geometry.label.x - 85} y={geometry.label.y - 30} width="170" height="60" className="diagram-arrow-label">
-                  <div className="diagram-label" style={{ color: arrow.color }}><span className="diagram-label-plate"><MathLabel label={arrow.label} /></span></div>
+                  <div className="diagram-label" style={{ color: arrow.color === '#334155' ? 'var(--diagram-arrow)' : arrow.color }}><span className="diagram-label-plate"><MathLabel label={arrow.label} /></span></div>
                 </foreignObject>}
               </g>;
             })}

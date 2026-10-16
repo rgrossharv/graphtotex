@@ -28,7 +28,14 @@
   --visibility-on-bg: #edfbf8;
   --visibility-on-border: #9fd8cf;
   --visibility-on-text: #0f766e;
-  --canvas-bg: #f8fafc;
+  --canvas-bg: #f7fafc;
+  --graph-grid: #d9e3ec;
+  --graph-axis: #1f2937;
+  --graph-box: #b5c4d8;
+  --graph-x: #d94646;
+  --graph-y: #2563eb;
+  --graph-z: #0f766e;
+  --diagram-arrow: #334155;
   --modal-bg: #fdfefe;
   --overlay: rgba(0, 0, 0, 0.42);
   --shadow: 0 10px 30px rgba(15, 35, 58, 0.08);
@@ -63,6 +70,13 @@
   --visibility-on-border: #2f7b75;
   --visibility-on-text: #89f2e3;
   --canvas-bg: #111d2b;
+  --graph-grid: #293d53;
+  --graph-axis: #bacce0;
+  --graph-box: #59728f;
+  --graph-x: #f87171;
+  --graph-y: #60a5fa;
+  --graph-z: #2dd4bf;
+  --diagram-arrow: #cbd5e1;
   --modal-bg: #182739;
   --overlay: rgba(0, 0, 0, 0.58);
   --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
@@ -131,12 +145,28 @@ textarea {
   color: rgba(248, 251, 255, 0.9);
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
 .page-switch {
   display: inline-flex;
   gap: 0.4rem;
 }
 
-.page-switch a {
+.page-switch a,
+.theme-toggle {
   border: 1px solid rgba(255, 255, 255, 0.45);
   background: rgba(255, 255, 255, 0.12);
   color: #f8fbff;
@@ -145,6 +175,17 @@ textarea {
   font-weight: 700;
   cursor: pointer;
   text-decoration: none;
+}
+
+.page-switch a:hover,
+.theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.theme-toggle:focus-visible,
+.page-switch a:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 3px;
 }
 
 .page-switch a.is-active {
@@ -366,6 +407,7 @@ textarea {
 }
 
 .icon-btn {
+  color: var(--text);
   border: 1px solid var(--border);
   background: var(--input-bg);
   border-radius: 8px;

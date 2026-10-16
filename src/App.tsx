@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type MouseEvent } from 'react';
 import ControlsBar from './components/ControlsBar';
 import ControlsBar3D from './components/ControlsBar3D';
 import ExpressionList from './components/ExpressionList';
@@ -14,6 +14,8 @@ import { generateTikzExport } from './lib/tikzExport';
 import { generateTikzExport3D } from './lib/tikzExport3d';
 import { DEFAULT_VIEWPORT_3D, clampViewport3D } from './lib/viewport3d';
 import { clampViewport, DEFAULT_VIEWPORT } from './lib/viewport';
+import { pageFromLocation, PAGES, type Page } from './lib/pages';
+import { updatePageMetadata } from './lib/seo';
 import type {
   Expression,
   Expression3D,
@@ -103,17 +105,15 @@ function exampleExpressions3D(key: string): Expression3D[] {
   }
 }
 
-type Page = '2d' | '3d' | 'diagram';
-
-function initialPage(): Page {
+function currentPage(): Page {
   if (typeof window === 'undefined') {
     return '2d';
   }
-  return window.location.hash === '#diagram' ? 'diagram' : window.location.hash === '#3d' ? '3d' : '2d';
+  return pageFromLocation(window.location);
 }
 
-export default function App() {
-  const [page, setPage] = useState<Page>(initialPage);
+export default function App({ initialPage }: { initialPage?: Page }) {
+  const [page, setPage] = useState<Page>(() => initialPage ?? currentPage());
   const [isMobile, setIsMobile] = useState<boolean>(() => {
     if (typeof window === 'undefined') {
       return false;
@@ -143,9 +143,22 @@ export default function App() {
   const [exportScale, setExportScale] = useState(1.2);
 
   useEffect(() => {
-    const onHashChange = () => setPage(initialPage());
-    window.addEventListener('hashchange', onHashChange);
-    return () => window.removeEventListener('hashchange', onHashChange);
+    const onLocationChange = () => {
+      const nextPage = currentPage();
+      // Keep old bookmarks working while consolidating them under crawlable URLs.
+      if (['#2d', '#3d', '#diagram'].includes(window.location.hash)) {
+        window.history.replaceState(null, '', `${PAGES[nextPage].path}${window.location.search}`);
+      }
+      setPage(nextPage);
+      updatePageMetadata(nextPage);
+    };
+    onLocationChange();
+    window.addEventListener('hashchange', onLocationChange);
+    window.addEventListener('popstate', onLocationChange);
+    return () => {
+      window.removeEventListener('hashchange', onLocationChange);
+      window.removeEventListener('popstate', onLocationChange);
+    };
   }, []);
 
   useEffect(() => {
@@ -273,9 +286,16 @@ export default function App() {
     });
   };
 
-  const navigateTo = (nextPage: Page) => {
+  const navigateTo = (event: MouseEvent<HTMLAnchorElement>, nextPage: Page) => {
+    // Let the browser handle modified clicks and opening workspaces in new tabs.
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    const nextUrl = `${PAGES[nextPage].path}${window.location.search}`;
+    if (`${window.location.pathname}${window.location.search}${window.location.hash}` !== nextUrl) {
+      window.history.pushState(null, '', nextUrl);
+    }
     setPage(nextPage);
-    window.location.hash = nextPage === '2d' ? '' : `#${nextPage}`;
+    updatePageMetadata(nextPage);
   };
 
   return (
@@ -292,15 +312,12 @@ export default function App() {
           </p>
         </div>
         <div className="page-switch" role="navigation" aria-label="Page selection">
-          <button className={page === '2d' ? 'is-active' : ''} onClick={() => navigateTo('2d')}>
-            2d
-          </button>
-          <button className={page === '3d' ? 'is-active' : ''} onClick={() => navigateTo('3d')}>
-            3d
-          </button>
-          <button className={page === 'diagram' ? 'is-active' : ''} onClick={() => navigateTo('diagram')}>
-            Diagrams
-          </button>
+          {(Object.entries(PAGES) as [Page, typeof PAGES[Page]][]).map(([key, metadata]) => (
+            <a key={key} href={metadata.path} className={page === key ? 'is-active' : ''}
+              aria-current={page === key ? 'page' : undefined} onClick={(event) => navigateTo(event, key)}>
+              {metadata.label}
+            </a>
+          ))}
         </div>
       </header>
 

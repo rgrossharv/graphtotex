@@ -304,7 +304,14 @@ export default function GraphCanvas({ expressions, viewport, settings, onViewpor
   return (
     <div className="graph-frame" ref={frameRef}>
       <div className="graph-wrap" ref={wrapperRef} style={{ width: `${size.width}px`, height: `${size.height}px` }}>
-        <canvas ref={canvasRef} onMouseDown={onMouseDown} onWheel={onWheel} />
+        <canvas ref={canvasRef} onMouseDown={onMouseDown} onWheel={onWheel}
+          aria-label="2D graph of the visible expressions" aria-describedby="graph-description graph-expressions">
+          <p id="graph-description">Interactive 2D graphing calculator for functions and implicit equations. Enter an expression
+            such as sin(x), x^2, or x^2+y^2=1. Adjust graph bounds, colors, line styles, and domains,
+            then use Export TikZ to copy or download LaTeX code.</p>
+          <p id="graph-expressions">Visible expressions: {expressions.filter((expression) => expression.visible && !expression.error)
+            .map((expression) => expression.rawInput).join('; ') || 'none'}.</p>
+        </canvas>
       </div>
     </div>
   );

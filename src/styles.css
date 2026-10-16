@@ -136,7 +136,7 @@ textarea {
   gap: 0.4rem;
 }
 
-.page-switch button {
+.page-switch a {
   border: 1px solid rgba(255, 255, 255, 0.45);
   background: rgba(255, 255, 255, 0.12);
   color: #f8fbff;
@@ -144,9 +144,10 @@ textarea {
   padding: 0.34rem 0.65rem;
   font-weight: 700;
   cursor: pointer;
+  text-decoration: none;
 }
 
-.page-switch button.is-active {
+.page-switch a.is-active {
   background: rgba(255, 255, 255, 0.26);
 }
 

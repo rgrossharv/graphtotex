@@ -9,6 +9,8 @@ import {
 import { generateDiagramTikz } from '../lib/tikzDiagram';
 import { generateDiagramTikzCd } from '../lib/tikzCdExport';
 
+const useBrowserLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
+
 type Selection = { kind: 'node' | 'arrow'; id: string } | null;
 type Tool = 'select' | 'object' | 'arrow';
 interface History { past: Diagram[]; present: Diagram; future: Diagram[] }
@@ -30,6 +32,7 @@ function historyReducer(state: History, action: Action): History {
 
 function loadDiagram(): History {
   let present = diagramTemplate('square');
+  if (typeof window === 'undefined') return { past: [], present, future: [] };
   try {
     const saved: unknown = JSON.parse(localStorage.getItem(DIAGRAM_STORAGE_KEY) || 'null');
     if (isDiagram(saved)) present = saved;
@@ -51,7 +54,7 @@ function MathLabel({ label, onMeasure }: { label: string; onMeasure?: (width: nu
   const measureRef = useRef(onMeasure);
   measureRef.current = onMeasure;
   const shouldMeasure = !!onMeasure;
-  useLayoutEffect(() => {
+  useBrowserLayoutEffect(() => {
     if (!ref.current || !shouldMeasure) return;
     const measure = () => { if (ref.current) measureRef.current?.(ref.current.offsetWidth, ref.current.offsetHeight); };
     measure();
@@ -265,7 +268,11 @@ export default function DiagramEditor() {
         </div>
         <div className={`diagram-board-scroll tool-${tool}`}>
           <svg ref={svgRef} className="diagram-board" viewBox={`${left} ${top} ${width} ${height}`} style={{ aspectRatio: `${width} / ${height}` }} aria-label="Editable commutative diagram"
+            aria-describedby="diagram-description"
             onPointerMove={moveDrag} onPointerUp={(event) => finishDrag(event)} onPointerCancel={(event) => finishDrag(event, true)}>
+            <desc id="diagram-description">Commutative diagram with {diagram.nodes.length} objects and {diagram.arrows.length} arrows.
+              {' '}Create objects with LaTeX labels, connect them with labeled arrows, and export TikZ or TikZ-CD code.
+              {' '}Objects: {diagram.nodes.map((node) => node.label).join(', ') || 'none'}.</desc>
             <defs>
               <pattern id="diagram-dot-grid" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="var(--border)" /></pattern>
               {diagram.arrows.map((arrow) => <g key={arrow.id}>

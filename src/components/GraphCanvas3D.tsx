@@ -513,7 +513,14 @@ export default function GraphCanvas3D({ expressions, viewport, settings, onViewp
         ref={wrapperRef}
         style={{ width: `${size.width}px`, height: `${size.height}px` }}
       >
-        <canvas ref={canvasRef} onMouseDown={onMouseDown} onWheel={onWheel} />
+        <canvas ref={canvasRef} onMouseDown={onMouseDown} onWheel={onWheel}
+          aria-label="3D graph of the visible surfaces" aria-describedby="surface-description surface-expressions">
+          <p id="surface-description">Interactive 3D surface graphing calculator for functions of x and y. Plot surfaces such
+            as sin(x)*cos(y), rotate and zoom the view, and adjust axis bounds, domains, and colors.
+            Use Export TikZ 3D to copy or download PGFPlots code for LaTeX.</p>
+          <p id="surface-expressions">Visible surfaces: {expressions.filter((expression) => expression.visible && !expression.error)
+            .map((expression) => expression.rawInput).join('; ') || 'none'}.</p>
+        </canvas>
       </div>
     </div>
   );

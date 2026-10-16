@@ -16,7 +16,7 @@ try {
       rollupOptions: { output: { entryFileNames: 'entry-server.mjs' } }
     }
   });
-  const { PAGES, renderPage } = await import(pathToFileURL(resolve(temporaryDirectory, 'entry-server.mjs')));
+  const { EXPORT_GUIDE_PATH, PAGES, renderPage } = await import(pathToFileURL(resolve(temporaryDirectory, 'entry-server.mjs')));
   const template = await readFile('dist/index.html', 'utf8');
   if (!template.includes('<!--seo-head-start-->') || !template.includes('<div id="root"></div>')) {
     throw new Error('The HTML template is missing its prerender placeholders.');
@@ -33,7 +33,8 @@ try {
     console.log(`Prerendered ${metadata.path}`);
   }
 
-  const urls = Object.values(PAGES).map(({ path }) => `  <url><loc>https://graphtotex.com${path}</loc></url>`);
+  const paths = [...Object.values(PAGES).map(({ path }) => path), EXPORT_GUIDE_PATH];
+  const urls = paths.map((path) => `  <url><loc>https://graphtotex.com${path}</loc></url>`);
   await writeFile('dist/sitemap.xml', [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',

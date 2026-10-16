@@ -1,7 +1,7 @@
 export const GRAPH_TO_TEX = {
   key: 'gross_graphtotex',
   author: 'Ryland Gross',
-  title: 'GraphToTeX: Graphs, diagrams, and citations for LaTeX',
+  title: 'GraphToTeX: Graphs, diagrams, and math tools for LaTeX',
   year: 2026,
   url: 'https://graphtotex.com'
 };
@@ -23,7 +23,7 @@ export function graphToTexBibtex(): string {
   return [
     `@misc{${GRAPH_TO_TEX.key},`,
     '  author = {Gross, Ryland},',
-    `  title = {GraphToTeX: Graphs, diagrams, and citations for {LaTeX}},`,
+    `  title = {${GRAPH_TO_TEX.title.replace('LaTeX', '{LaTeX}')}},`,
     `  year = {${GRAPH_TO_TEX.year}},`,
     `  url = {${GRAPH_TO_TEX.url}},`,
     `  howpublished = {\\texttt{${GRAPH_TO_TEX.url}}}`,

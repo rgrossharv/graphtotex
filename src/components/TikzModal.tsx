@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
+import TikzPreview, { type TikzVariant } from './TikzPreview';
+import './TikzModal.css';
 
 interface TikzModalProps {
   isOpen: boolean;
   tikzCode: string;
-  variant?: '2d' | '3d' | 'diagram' | 'diagram-cd';
+  variant?: TikzVariant;
   scale?: number;
   onScaleChange?: (scale: number) => void;
   onClose: () => void;
@@ -80,7 +82,7 @@ export default function TikzModal({ isOpen, tikzCode, variant = '2d', scale, onS
 
   return (
     <div className="modal-backdrop" role="presentation" onClick={onClose}>
-      <div ref={dialogRef} tabIndex={-1} className="modal" role="dialog" aria-modal="true" aria-labelledby="tikz-modal-title" onClick={(event) => event.stopPropagation()}>
+      <div ref={dialogRef} tabIndex={-1} className="modal tikz-export-modal" role="dialog" aria-modal="true" aria-labelledby="tikz-modal-title" onClick={(event) => event.stopPropagation()}>
         <div className="modal-header">
           <h2 id="tikz-modal-title">{variant === 'diagram-cd' ? 'Diagram TikZ-CD Export' : variant === 'diagram' ? 'Diagram TikZ Export' : 'TikZ Export'}</h2>
           <button className="icon-btn" onClick={onClose} title="Close" aria-label="Close export">
@@ -111,7 +113,13 @@ export default function TikzModal({ isOpen, tikzCode, variant = '2d', scale, onS
             }} />
         </label>}
         <label className="export-document-toggle"><input type="checkbox" checked={completeDocument} onChange={(event) => setCompleteDocument(event.target.checked)} />Complete LaTeX document with required packages</label>
-        <textarea aria-label="TikZ source code" readOnly value={exportedCode} rows={20} className="tikz-textarea" />
+        <div className="export-content">
+          <TikzPreview code={tikzCode} variant={variant} />
+          <section className="export-source" aria-labelledby="export-source-title">
+            <div className="export-pane-heading"><h3 id="export-source-title">{completeDocument ? 'LaTeX document' : 'TikZ source'}</h3><span>.tex</span></div>
+            <textarea aria-label="TikZ source code" readOnly value={exportedCode} rows={20} className="tikz-textarea" />
+          </section>
+        </div>
         {copyError && <p role="status" className="expr-error">Clipboard access failed. Select the code above to copy it manually.</p>}
         <div className="modal-actions">
           <button onClick={onCopy}>{copied ? 'Copied!' : 'Copy to Clipboard'}</button>

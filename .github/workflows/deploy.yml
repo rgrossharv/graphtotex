@@ -34,8 +34,8 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Verify crawlable pages
-        run: npm run test:seo
+      - name: Verify pages, calculations, and HTML exports
+        run: npm test
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

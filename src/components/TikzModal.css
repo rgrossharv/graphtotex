@@ -1,0 +1,36 @@
+.tikz-export-modal { width: min(1200px, 96vw); padding: 1.1rem; border-radius: 6px; }
+.tikz-export-modal .modal-header h2 { font-size: 1.15rem; }
+.tikz-export-modal .modal-note { margin: 0.5rem 0 0.9rem; max-width: 90ch; font-size: 0.75rem; line-height: 1.65; }
+.tikz-export-modal .export-scale { margin: 0.75rem 0; font-size: 0.8rem; }
+.tikz-export-modal .export-scale input { border-radius: 4px; }
+.tikz-export-modal .export-document-toggle { font-size: 0.75rem; }
+.tikz-export-modal input[type='checkbox'] { accent-color: var(--accent); }
+.export-content { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
+.export-preview, .export-source { min-width: 0; }
+.export-pane-heading { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; min-height: 32px; margin-bottom: 0.35rem; }
+.export-pane-heading h3 { margin: 0; font-size: 0.8rem; font-weight: 600; }
+.export-pane-heading > span { color: var(--muted); font-size: 0.65rem; }
+.export-preview-paper { position: relative; height: clamp(280px, 43vh, 480px); overflow: hidden; background: #ffffff; color: #303238; border: 1px solid var(--border); border-radius: 4px; }
+.export-preview-paper iframe { width: 100%; height: 100%; border: 0; visibility: hidden; }
+.export-preview-paper iframe.is-ready { visibility: visible; }
+.export-preview-message { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.6rem; padding: 1.5rem; text-align: center; }
+.export-preview-message p { margin: 0; font-size: 0.85rem; }
+.export-preview-message small { max-width: 32ch; color: #73777c; font-size: 0.7rem; line-height: 1.65; }
+.export-preview-message button { margin-top: 0.35rem; padding: 0.45rem 0.7rem; border: 1px solid #d9dbdc; border-radius: 4px; background: #f5f5f4; color: #303238; font-size: 0.75rem; cursor: pointer; }
+.export-preview-spinner { width: 22px; height: 22px; border: 2px solid #e0e1e2; border-top-color: #287c72; border-radius: 50%; animation: export-preview-spin 1s linear infinite; }
+.export-preview-note { margin: 0.5rem 0 0; color: var(--muted); font-size: 0.65rem; line-height: 1.6; }
+.export-source .tikz-textarea { display: block; height: clamp(280px, 43vh, 480px); min-height: 180px; border-radius: 4px; font-size: 0.7rem; line-height: 1.6; tab-size: 2; }
+.tikz-export-modal .modal-actions { margin-top: 1rem; }
+.tikz-export-modal .modal-actions button { border-radius: 4px; font-size: 0.75rem; }
+.tikz-export-modal .modal-actions button:first-child { background: #287c72; border-color: #20665e; color: #ffffff; }
+.tikz-export-modal .modal-actions button:first-child:hover { background: #20665e; }
+@keyframes export-preview-spin { to { transform: rotate(360deg); } }
+@media (max-width: 700px) {
+  .tikz-export-modal { padding: 0.85rem; }
+  .export-content { grid-template-columns: minmax(0, 1fr); gap: 0.75rem; }
+  .export-preview-paper { height: 280px; }
+  .export-source .tikz-textarea { height: 220px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .export-preview-spinner { animation: none; }
+}

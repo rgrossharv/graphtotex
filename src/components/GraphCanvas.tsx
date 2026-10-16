@@ -171,7 +171,7 @@ function drawGraph(
       return;
     }
 
-    const segments = sampleExpression(expr.evaluator, xMin, xMax, expr.samples, viewport);
+    const segments = sampleExpression(expr.evaluator, xMin, xMax, expr.samples, viewport, undefined, { width: width / dpr, height: height / dpr });
 
     segments.forEach((segment) => {
       if (segment.length < 2) {

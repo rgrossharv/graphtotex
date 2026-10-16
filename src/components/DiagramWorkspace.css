@@ -1,0 +1,151 @@
+.app-shell:has(.diagram-workspace) {
+  --diagram-arrow: var(--graph-axis);
+}
+
+.diagram-workspace {
+  grid-template-columns: clamp(300px, 26vw, 400px) minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  min-width: 0;
+  gap: 0;
+}
+
+.diagram-toolbar,
+.diagram-canvas-panel,
+.diagram-inspector {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.diagram-toolbar {
+  min-height: 47px;
+  gap: 0.65rem;
+  padding: 0.4rem 0.65rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+}
+
+.diagram-toolbar button,
+.diagram-secondary-button,
+.diagram-delete-button {
+  padding: 0.4rem 0.65rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.diagram-toolbar button svg { width: 17px; height: 17px; }
+.diagram-toolbar button:hover { border-color: var(--border); }
+.diagram-toolbar button:disabled { cursor: default; }
+
+.diagram-tools {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.diagram-tools button.is-active {
+  background: var(--chip-bg);
+  color: var(--accent);
+  border-color: transparent;
+}
+
+.diagram-history { padding-right: 0.65rem; }
+.diagram-history button { padding: 0.4rem; background: transparent; border-color: transparent; }
+.diagram-template-select { font-size: 0.7rem; }
+.diagram-template-select select { padding: 0.35rem 0.5rem; font-size: 0.75rem; border-radius: 4px; }
+.diagram-toolbar .diagram-export-button { background: #287c72; border-color: #20665e; color: #ffffff; font-weight: 600; }
+.diagram-toolbar .diagram-export-button:hover { background: #20665e; }
+.diagram-toolbar .diagram-export-actions button:first-child { background: transparent; color: var(--accent); border-color: var(--border); }
+.diagram-toolbar .diagram-export-actions button:first-child:hover { background: var(--chip-bg); }
+
+.diagram-canvas-panel {
+  grid-column: 2;
+  grid-row: 2;
+  background: var(--canvas-bg);
+}
+
+.diagram-canvas-header {
+  min-height: 47px;
+  padding: 0.65rem 1rem;
+  background: var(--surface);
+}
+
+.diagram-canvas-header h2,
+.diagram-inspector h2 { font-family: inherit; font-size: 0.8rem; font-weight: 600; }
+.diagram-canvas-header p { margin-top: 0.2rem; font-size: 0.65rem; }
+.diagram-save-status { font-size: 0.65rem; }
+.diagram-save-status > span { font-size: 0.55rem; }
+
+.diagram-board-scroll { padding: 1rem; background: var(--canvas-bg); }
+.diagram-object rect { rx: 5px; }
+.diagram-label-plate { background: var(--canvas-bg); border-radius: 3px; }
+.diagram-status-bar { min-height: 38px; padding: 0.5rem 1rem; gap: 0.75rem; background: var(--surface); font-size: 0.65rem; }
+.diagram-workspace input[type='checkbox'] { accent-color: var(--accent); }
+
+.diagram-inspector {
+  grid-column: 1;
+  grid-row: 2;
+  border-right: 1px solid var(--border);
+}
+
+.diagram-inspector-heading { padding: 0.8rem 1rem; background: var(--surface-2); }
+.diagram-eyebrow { margin-bottom: 0.25rem; font-size: 0.6rem; letter-spacing: 0.08em; font-weight: 500; }
+.diagram-inspector-content { position: relative; padding: 0.9rem 1rem; }
+.diagram-inspector h3 { font-size: 0.78rem; font-weight: 600; }
+.diagram-field { gap: 0.35rem; margin-bottom: 0.75rem; font-size: 0.7rem; }
+.diagram-field select,
+.diagram-field input:not([type='range']) { padding: 0.35rem 0.5rem; font-size: 0.75rem; border-radius: 4px; }
+.diagram-field input[type='color'] { padding: 2px; height: 29px; }
+.diagram-label-preview { min-height: 42px; padding: 0.6rem; border-radius: 4px; }
+.diagram-help,
+.diagram-onboarding p,
+.diagram-onboarding ol { font-size: 0.7rem; }
+.diagram-onboarding-symbol { padding: 0.8rem; border-radius: 4px; font-size: 1.6rem; }
+.diagram-checkbox,
+.diagram-range-value,
+.diagram-field-error { font-size: 0.7rem; }
+.diagram-outline button { padding: 0.5rem; border-radius: 4px; }
+.diagram-outline button > span:last-child { font-size: 0.65rem; }
+
+@media (max-width: 1100px) {
+  .diagram-workspace { grid-template-columns: clamp(300px, 26vw, 400px) minmax(0, 1fr); }
+}
+
+@media (max-width: 700px) {
+  html:has(.diagram-workspace),
+  body:has(.diagram-workspace),
+  #root:has(.diagram-workspace) { height: 100%; overflow: hidden; }
+  .app-shell:has(.diagram-workspace) { height: 100dvh; min-height: 0; padding-bottom: 0; overflow: hidden; }
+  .diagram-workspace { flex: 1; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) minmax(185px, 35%); }
+  .diagram-toolbar { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0.35rem; padding: 0.4rem 0.65rem; }
+  .diagram-tools { grid-column: 1 / 6; grid-row: 1; width: auto; min-width: 0; }
+  .diagram-tools button { padding: 0.4rem; font-size: 0.7rem; }
+  .diagram-history { grid-column: 6; grid-row: 1; justify-content: flex-end; gap: 0; }
+  .diagram-history button { width: 22px; padding: 0; }
+  .diagram-template-select { grid-column: 1 / 3; grid-row: 2; min-width: 0; }
+  .diagram-template-select select { width: 100%; max-width: none; font-size: 0.7rem; }
+  .diagram-export-actions { grid-column: 3 / -1; grid-row: 2; width: 100%; display: flex; gap: 0.35rem; margin-left: 0; }
+  .diagram-export-actions button { flex: 1; }
+  .diagram-export-actions button { padding: 0.4rem; gap: 0.3rem; font-size: 0.65rem; }
+  .diagram-export-actions button svg { width: 14px; height: 14px; }
+  .diagram-canvas-panel { grid-column: 1; grid-row: 2; min-height: 0; }
+  .diagram-canvas-header { padding: 0.5rem 0.75rem; }
+  .diagram-canvas-header p { display: none; }
+  .diagram-board-scroll { min-height: 0; padding: 0.5rem; }
+  .diagram-board { min-height: 0; }
+  .diagram-status-bar { min-height: 0; padding: 0.4rem 0.75rem; font-size: 0.6rem; }
+  .diagram-inspector { grid-column: 1; grid-row: 3; min-height: 0; overflow: hidden; border-right: 0; border-top: 1px solid var(--border); }
+  .diagram-inspector-heading { padding: 0.5rem 0.75rem; display: flex; align-items: baseline; gap: 0.65rem; }
+  .diagram-eyebrow { margin: 0; }
+  .diagram-inspector-content { min-height: 0; overflow-y: auto; padding: 0.75rem; overscroll-behavior: contain; }
+}
+
+@media (max-width: 360px) {
+  .diagram-tools button { padding: 0.35rem 0.25rem; gap: 0.25rem; font-size: 0.65rem; }
+  .diagram-toolbar { gap: 0.25rem; }
+  .diagram-export-actions button { padding: 0.35rem 0.3rem; font-size: 0.6rem; }
+  .diagram-canvas-header { min-height: 38px; }
+  .diagram-workspace { grid-template-rows: auto minmax(0, 1fr) minmax(160px, 30%); }
+}

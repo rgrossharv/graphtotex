@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-title: "GraphToTeX: Graphs, diagrams, and citations for LaTeX"
+title: "GraphToTeX: Graphs, diagrams, and math tools for LaTeX"
 message: "If you use this software, please cite it using this metadata."
 type: software
 authors:
@@ -7,7 +7,7 @@ authors:
     given-names: "Ryland"
 year: 2026
 url: "https://graphtotex.com"
-abstract: "Graphing, commutative diagrams, and citation tools for LaTeX."
+abstract: "Interactive graphing, commutative diagrams, mathematical calculators, and TeX export tools for LaTeX."
 keywords:
   - graphing
   - tikz

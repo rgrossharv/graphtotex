@@ -1,17 +1,29 @@
 # GraphToTeX
 
-2D and 3D graphing and commutative diagrams with TikZ/TikZ-CD export. A citation workspace is retained in the source but is not enabled on the website yet.
+2D and 3D graphing and commutative diagrams with TikZ/TikZ-CD export, plus scientific, calculus, linear algebra, and TeX document tools in Misc. A citation workspace is retained in the source but is not enabled on the website yet.
 
 Run locally with `npm install` and `npm run dev`. Build with `npm run build`.
 
-The production build prerenders the existing React interface into real HTML for `/`, `/3d/`, and `/diagram/`, including a distinct title, description, canonical URL, social metadata, and structured data for each workspace. JavaScript mounts the interactive app as before, so local diagram drafts and responsive behavior are preserved. Canvas fallback text and the diagram description also provide text alternatives without changing the visual layout.
+The production build prerenders the React interface into real HTML for `/`, `/3d/`, `/diagram/`, and `/misc/`, including a distinct title, description, canonical URL, social metadata, and structured data for each workspace. JavaScript mounts the interactive app as before, so local diagram drafts and responsive behavior are preserved. Canvas fallback text and the diagram description also provide text alternatives without changing the visual layout.
 
 Navigation uses ordinary links and the History API. Existing `/#3d`, `/#diagram`, and `/#2d` bookmarks still open the right workspace and are normalized to its canonical path. Direct URLs, including `/diagram` and `/3d`, work on GitHub Pages through the generated directories (Pages adds the trailing slash). Back/forward navigation works without reloading the app.
 
+Every TikZ export dialog includes a compiled figure preview. The TeX runtime (TikZJax 1.6.0) and fonts load from jsDelivr only when an export opens, and compilation happens in an isolated browser frame. The first preview needs an internet connection; copying and downloading the source still work if the renderer cannot load. The preview uses the generated figure code with its required packages, including PGFPlots and TikZ-CD, and fits the result to a white preview area.
+
+2D curves use adaptive sampling to resolve curvature and domain boundaries at the canvas resolution. Tangent and other functions with poles are split into separate branches, including when zoomed far out vertically. TikZ exports use the same sampled branches for functions and rational expressions.
+
+The static `/desmos-to-tikz/` guide explains how to recreate equations and export TikZ for LaTeX or Overleaf, including the current limitations on Desmos imports. It is linked from each workspace and included in the sitemap. Its content and links work without JavaScript. The calculator's title, description, and social metadata also describe its Desmos-style graphing and TikZ export.
+
+`/misc/` contains a scientific calculator, calculus I–III operations, and matrix/vector calculations with TeX autocomplete, KaTeX previews, exact results, decimal approximations, and TeX downloads. Cortex Compute Engine parses and evaluates math in a worker loaded only when Calculate is used. Long calculations time out without blocking the interface. Run `npm run test:calculator` to check the supported operations.
+
+The Complex graph tab plots functions of `z = x + iy` using domain coloring: hue represents argument, and brightness bands represent magnitude. It includes examples, zoom and center controls, point evaluation by input or graph click, TeX copying, and PNG download. Computation runs in a cancellable worker. Logarithms, square roots, and fractional powers use their principal branches.
+
+Misc also compiles complete TeX documents to PDF using the bundled SwiftLaTeX pdfLaTeX runtime, with two passes for references and supporting-file uploads. Standard TeX Live 2020 packages load on demand from `https://texlive.texlyre.org/`; this requires a network connection. XeLaTeX-only packages and newer package APIs may require a different compiler. Compilation logs and cancellation are available. HTML export renders the compiled PDF with PDF.js into an offline, standalone HTML presentation. It preserves Beamer themes and math as page images with accessible page text, arrow-key navigation, an all-pages view, fullscreen controls, and print styles; overlays become separate slides. HTML export supports up to 100 pages. Runtime source and license information is in `public/vendor/swiftlatex/NOTICE.md`.
+
 `scripts/prerender.mjs` generates the deployed sitemap from `src/lib/pages.ts` and copies `robots.txt` and `CNAME` into `dist`. Deploy the entire `dist` directory using the existing GitHub Pages workflow. To check the production output locally, run `npm run build`, `npm run test:seo`, and `npm run preview`. The deployment workflow also checks that each page contains crawlable HTML, correct metadata, and valid asset links before publishing.
 
-After deployment, submit `https://graphtotex.com/sitemap.xml` in Google Search Console and inspect the three workspace URLs to request indexing. Search engines control when pages are crawled and indexed.
+After deployment, submit `https://graphtotex.com/sitemap.xml` in Google Search Console and inspect the four workspace URLs and the Desmos-to-TikZ guide to request indexing. Search engines control when pages are crawled and indexed.
 
 Built by Ryland Gross with Codex assistance; GPT 6.1 sol also worked on the project.
 
-Citation metadata: [CITATION.cff](CITATION.cff) and [BibTeX](citation/graph-to-tex.bib). See [LICENSE](LICENSE).
+GraphToTeX is public domain software under the [Unlicense](LICENSE). Bundled dependencies retain their own licenses. Citation metadata: [CITATION.cff](CITATION.cff) and [BibTeX](citation/graph-to-tex.bib).

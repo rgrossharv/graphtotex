@@ -1,4 +1,5 @@
 import type { GraphSettings, PreparedExpression, Viewport } from '../types';
+import type { OperatorNode } from 'mathjs';
 import { parseDomainBounds, sampleExpression } from './mathParser';
 import { convertAstToTikz } from './tikzExpr';
 import { buildTicks, getNiceTickStep } from './viewport';
@@ -160,8 +161,20 @@ function expressionToTikz(expr: PreparedExpression, viewport: Viewport): string[
   const line = exportExplicitLine(expr, { ...viewport, ...clampedDomain }, style);
   if (line) return line;
   const symbolic = convertAstToTikz(expr.node);
+  // Sample functions and potentially discontinuous powers/quotients with the
+  // same adaptive sampler as the canvas, preserving branch and domain breaks.
+  const needsCoordinates = !!expr.node?.filter((node) => {
+    if (node.type === 'FunctionNode') return true;
+    if (node.type !== 'OperatorNode') return false;
+    const { fn, args } = node as OperatorNode;
+    if (fn === 'divide') return true;
+    if (fn !== 'pow') return false;
+    const exponent = args[1];
+    const value = exponent?.type === 'ConstantNode' ? Number(exponent.toString()) : NaN;
+    return !Number.isInteger(value) || value < 0;
+  }).length;
 
-  if (symbolic.ok && symbolic.expression) {
+  if (symbolic.ok && symbolic.expression && !needsCoordinates) {
     const sampleCount = Math.max(40, Math.min(1200, Math.round(expr.samples)));
     return [
       `\\draw[${style}, domain=${formatNumber(clampedDomain.xMin)}:${formatNumber(
@@ -180,7 +193,7 @@ function expressionToTikz(expr: PreparedExpression, viewport: Viewport): string[
   );
 
   const lines: string[] = [];
-  lines.push(`% ${expr.rawInput} exported as coordinates (${symbolic.reason ?? 'fallback'}).`);
+  lines.push(`% ${expr.rawInput} exported as coordinates (${symbolic.reason ?? 'preserves curve detail and domain breaks'}).`);
 
   segments.forEach((segment) => {
     const slim = downsample(segment, 800);

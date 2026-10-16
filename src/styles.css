@@ -386,6 +386,7 @@ textarea {
 }
 
 .app-footer > a { margin-left: auto; }
+.app-footer { flex-wrap: wrap; }
 
 .cite-graph-trigger {
   position: fixed;

@@ -128,7 +128,7 @@ export function generateTikzExport3D({ expressions, viewport, settings, scale = 
     `  xmin=${formatNumber(viewport.xMin)}, xmax=${formatNumber(viewport.xMax)},`,
     `  ymin=${formatNumber(viewport.yMin)}, ymax=${formatNumber(viewport.yMax)},`,
     `  zmin=${formatNumber(viewport.zMin)}, zmax=${formatNumber(viewport.zMax)},`,
-    `  width=${formatNumber(9 * scale)}cm, height=${formatNumber(7 * scale)}cm, scale only axis, axis equal image,`,
+    `  width=${formatNumber(9 * scale)}cm, height=${formatNumber(7 * scale)}cm, scale only axis,`,
     settings.showAxes ? '  xlabel={$x$}, ylabel={$y$}, zlabel={$z$},' : '  xticklabels=\\empty, yticklabels=\\empty, zticklabels=\\empty, tick style={draw=none},',
     '  enlargelimits=false, clip=true, clip mode=individual]'
   ];

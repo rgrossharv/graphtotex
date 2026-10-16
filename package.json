@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build && node scripts/prerender.mjs",
+    "test": "node --test scripts/*.test.mjs",
     "test:seo": "node --test scripts/seo.test.mjs",
+    "test:calculator": "node --test scripts/calculator.test.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -14,8 +16,10 @@
     "@citation-js/plugin-bibtex": "^0.9.0",
     "@citation-js/plugin-csl": "^0.9.0",
     "@citation-js/plugin-ris": "^0.9.0",
+    "@cortex-js/compute-engine": "^0.154.0",
     "katex": "^0.16.11",
     "mathjs": "^14.2.1",
+    "pdfjs-dist": "^4.10.38",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

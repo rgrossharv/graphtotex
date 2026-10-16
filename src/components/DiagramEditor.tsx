@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState, type PointerEvent } from 'react';
 import katex from 'katex';
 import TikzModal from './TikzModal';
+import './DiagramWorkspace.css';
 import {
   ARROW_STYLES, BOARD_PADDING, CELL_HEIGHT, CELL_WIDTH, DIAGRAM_STORAGE_KEY,
   arrowGeometry, createDiagramArrow, diagramTemplate, isDiagram, nodePoint,

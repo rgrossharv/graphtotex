@@ -2,7 +2,7 @@ import { renderToString } from 'react-dom/server';
 import App from './App';
 import { canonicalUrl, PAGES, structuredData, type Page } from './lib/pages';
 
-export { PAGES } from './lib/pages';
+export { EXPORT_GUIDE_PATH, PAGES } from './lib/pages';
 
 const escapeHtml = (value: string) => value.replace(/[&<>"']/g, (character) => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'

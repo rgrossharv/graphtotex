@@ -8,6 +8,7 @@ import GraphCanvas3D from './components/GraphCanvas3D';
 import GraphWorkspace from './components/GraphWorkspace';
 import TikzModal from './components/TikzModal';
 import DiagramEditor from './components/DiagramEditor';
+import MiscWorkspace from './components/MiscWorkspace';
 import CiteGraphModal from './components/CiteGraphModal';
 import { prepareMath } from './lib/mathParser';
 import { prepareMath3D } from './lib/mathParser3d';
@@ -15,7 +16,7 @@ import { generateTikzExport } from './lib/tikzExport';
 import { generateTikzExport3D } from './lib/tikzExport3d';
 import { DEFAULT_VIEWPORT_3D, clampViewport3D, zoomCamera3D } from './lib/viewport3d';
 import { clampViewport, DEFAULT_VIEWPORT, zoomAt } from './lib/viewport';
-import { pageFromLocation, PAGES, type Page } from './lib/pages';
+import { EXPORT_GUIDE_PATH, pageFromLocation, PAGES, type Page } from './lib/pages';
 import { updatePageMetadata } from './lib/seo';
 import { useTheme } from './hooks/useTheme';
 import type {
@@ -143,7 +144,7 @@ export default function App({ initialPage }: { initialPage?: Page }) {
     const onLocationChange = () => {
       const nextPage = currentPage();
       // Keep old bookmarks working while consolidating them under crawlable URLs.
-      if (['#2d', '#3d', '#diagram'].includes(window.location.hash)) {
+      if (['#2d', '#3d', '#diagram', '#misc'].includes(window.location.hash)) {
         window.history.replaceState(null, '', `${PAGES[nextPage].path}${window.location.search}`);
       }
       setPage(nextPage);
@@ -308,6 +309,7 @@ export default function App({ initialPage }: { initialPage?: Page }) {
             {page === '2d'
               ? 'Interactive graphing calculator with direct TikZ export.'
               : page === '3d' ? 'Interactive 3D surface graphing workspace with live controls.'
+              : page === 'misc' ? 'Calculators, calculus, linear algebra, and TeX conversion tools.'
               : 'Build commutative diagrams with LaTeX labels and direct TikZ export.'}
           </p>
         </div>
@@ -387,10 +389,12 @@ export default function App({ initialPage }: { initialPage?: Page }) {
               onViewportChange={(next) => setViewport3D(clampViewport3D(next))}
             />
         </GraphWorkspace>
-      ) : <DiagramEditor />}
+      ) : page === 'misc' ? <MiscWorkspace /> : <DiagramEditor />}
 
       <footer className="app-footer">
-        <span>{page === 'diagram' ? 'Made for Math 221 at Harvard University' : 'Made for Econ1011b at Harvard University'}</span>
+        <span>{page === 'misc' ? 'Math tools for LaTeX' : page === 'diagram' ? 'Made for Math 221 at Harvard University' : 'Made for Econ1011b at Harvard University'}</span>
+        <a className="software-license" href="https://github.com/rgrossharv/graphtotex/blob/main/LICENSE" target="_blank" rel="noreferrer">Public domain software</a>
+        <a href={EXPORT_GUIDE_PATH}>Desmos to TikZ guide</a>
         <a href="https://github.com/rgrossharv/graphtotex" target="_blank" rel="noreferrer">
           GraphToTeX Repository
         </a>

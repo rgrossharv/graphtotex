@@ -293,45 +293,94 @@ export function sampleExpression(
   xMax: number,
   samples: number,
   viewport: Viewport,
-  maxAbsY = 1e6
+  maxAbsY = 1e6,
+  resolution = { width: 1000, height: 750 }
 ): Point[][] {
   const clampedSamples = Math.max(32, Math.min(5000, Math.round(samples)));
   const segments: Point[][] = [];
   let currentSegment: Point[] = [];
-
   const ySpan = Math.max(1e-6, viewport.yMax - viewport.yMin);
-  const jumpThreshold = ySpan * 8;
-  let prevY: number | null = null;
-
-  for (let i = 0; i <= clampedSamples; i += 1) {
-    const t = i / clampedSamples;
-    const x = xMin + t * (xMax - xMin);
+  const clipMin = Math.max(viewport.yMin - ySpan * 0.1, Math.min(viewport.yMin, -maxAbsY));
+  const clipMax = Math.min(viewport.yMax + ySpan * 0.1, Math.max(viewport.yMax, maxAbsY));
+  const tolerance = ySpan * 0.45 / Math.max(1, resolution.height);
+  let refinementsLeft = Math.max(2048, Math.min(20000, clampedSamples * 8));
+  const finishSegment = () => {
+    if (currentSegment.length > 1) segments.push(currentSegment);
+    currentSegment = [];
+  };
+  const evaluate = (x: number): Point | null => {
     const y = evaluator(x);
-
-    if (y === null || !Number.isFinite(y) || Math.abs(y) > maxAbsY) {
-      if (currentSegment.length > 1) {
-        segments.push(currentSegment);
-      }
-      currentSegment = [];
-      prevY = null;
-      continue;
+    return y === null || !Number.isFinite(y) ? null : { x, y };
+  };
+  const appendEdge = (a: Point, b: Point) => {
+    // Clip in world coordinates before sending points to canvas or TikZ. Very
+    // steep continuous lines still reach the canvas edges without huge coordinates.
+    const scale = Math.max(1, Math.abs(a.y), Math.abs(b.y));
+    const delta = b.y / scale - a.y / scale;
+    let enter = 0, exit = 1;
+    if (delta === 0) {
+      if (a.y < clipMin || a.y > clipMax) { finishSegment(); return; }
+    } else {
+      const first = (clipMin / scale - a.y / scale) / delta;
+      const second = (clipMax / scale - a.y / scale) / delta;
+      enter = Math.max(0, Math.min(first, second));
+      exit = Math.min(1, Math.max(first, second));
+      if (enter > exit) { finishSegment(); return; }
     }
-
-    if (prevY !== null && Math.abs(y - prevY) > jumpThreshold) {
-      if (currentSegment.length > 1) {
-        segments.push(currentSegment);
-      }
-      currentSegment = [];
+    const interpolate = (t: number): Point => t === 0 ? a : t === 1 ? b : ({
+      x: a.x + (b.x - a.x) * t,
+      y: Math.max(clipMin, Math.min(clipMax, (a.y / scale * (1 - t) + b.y / scale * t) * scale))
+    });
+    const start = interpolate(enter), end = interpolate(exit);
+    const previous = currentSegment[currentSegment.length - 1];
+    if (previous && (Math.abs(previous.x - start.x) > (xMax - xMin) * 1e-12 || Math.abs(previous.y - start.y) > ySpan * 1e-10)) finishSegment();
+    if (!currentSegment.length) currentSegment.push(start);
+    currentSegment.push(end);
+    if (exit < 1) finishSegment();
+  };
+  const refine = (aX: number, a: Point | null, bX: number, b: Point | null, depth: number) => {
+    const middleX = aX + (bX - aX) / 2;
+    if (middleX === aX || middleX === bX) { finishSegment(); return; }
+    const middle = evaluate(middleX);
+    const canRefine = depth < 18 && refinementsLeft > 0;
+    if (!a || !b || !middle) {
+      // Refine a domain boundary when at least one sample is defined.
+      if (canRefine && (a || b || middle)) {
+        refinementsLeft--;
+        refine(aX, a, middleX, middle, depth + 1);
+        refine(middleX, middle, bX, b, depth + 1);
+      } else finishSegment();
+      return;
     }
-
-    currentSegment.push({ x, y });
-    prevY = y;
+    const roundoff = Math.max(1, Math.abs(a.y), Math.abs(b.y), Math.abs(middle.y)) * 1e-12;
+    const turns = middle.y < Math.min(a.y, b.y) - roundoff || middle.y > Math.max(a.y, b.y) + roundoff;
+    const offscreen = Math.min(a.y, b.y, middle.y) > clipMax || Math.max(a.y, b.y, middle.y) < clipMin;
+    if (offscreen && !turns) { finishSegment(); return; }
+    const error = Math.abs(middle.y - (a.y / 2 + b.y / 2));
+    const pixelSpan = (bX - aX) / Math.max(1e-12, xMax - xMin) * resolution.width;
+    if (turns || error > tolerance || pixelSpan > 12) {
+      if (canRefine) {
+        refinementsLeft--;
+        refine(aX, a, middleX, middle, depth + 1);
+        refine(middleX, middle, bX, b, depth + 1);
+      } else {
+        // A pole continues to turn or diverge as the interval shrinks. Break
+        // the path instead of drawing a false line through the asymptote.
+        finishSegment();
+      }
+      return;
+    }
+    appendEdge(a, b);
+  };
+  let aX = xMin;
+  let a = evaluate(aX);
+  for (let i = 1; i <= clampedSamples; i++) {
+    const bX = xMin + i / clampedSamples * (xMax - xMin);
+    const b = evaluate(bX);
+    refine(aX, a, bX, b, 0);
+    aX = bX; a = b;
   }
-
-  if (currentSegment.length > 1) {
-    segments.push(currentSegment);
-  }
-
+  finishSegment();
   return segments;
 }
 

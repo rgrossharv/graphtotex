@@ -97,7 +97,7 @@ export function arrowGeometry(from: DiagramNode, to: DiagramNode, arrow: Diagram
 export function isDiagram(value: unknown): value is Diagram {
   if (!value || typeof value !== 'object') return false;
   const d = value as Diagram;
-  if (!Number.isInteger(d.columns) || d.columns < 2 || d.columns > 8 || !Number.isInteger(d.rows) || d.rows < 2 || d.rows > 8 || !Array.isArray(d.nodes) || !Array.isArray(d.arrows)) return false;
+  if (!Number.isInteger(d.columns) || d.columns < 1 || d.columns > 8 || !Number.isInteger(d.rows) || d.rows < 1 || d.rows > 8 || !Array.isArray(d.nodes) || !Array.isArray(d.arrows)) return false;
   const ids = new Set<string>(), cells = new Set<string>();
   for (const n of d.nodes) {
     if (!n || typeof n.id !== 'string' || typeof n.label !== 'string' || ids.has(n.id) || !Number.isInteger(n.column) || n.column < 0 || n.column >= d.columns || !Number.isInteger(n.row) || n.row < 0 || n.row >= d.rows) return false;

@@ -226,7 +226,7 @@ export default function DiagramEditor() {
     setMessage('Template loaded. You can undo to return to your previous diagram.');
   };
   const resizeGrid = (axis: 'rows' | 'columns', value: number) => {
-    const used = Math.max(1, ...diagram.nodes.map((n) => axis === 'rows' ? n.row : n.column)) + 1;
+    const used = Math.max(0, ...diagram.nodes.map((n) => axis === 'rows' ? n.row : n.column)) + 1;
     if (value < used) { setMessage('Move or remove objects near the edge before shrinking the grid.'); return; }
     commit({ ...diagram, [axis]: value });
   };
@@ -354,7 +354,7 @@ export default function DiagramEditor() {
           </> : <div className="diagram-onboarding"><div className="diagram-onboarding-symbol" aria-hidden="true">A <span>→</span> B</div><h3>From objects to arrows.</h3><p>Select anything in the diagram to edit it. Drag objects to arrange them on the grid.</p><ol><li><strong>Add object</strong> places a new object in an empty cell.</li><li><strong>Connect</strong> links a source to a destination.</li><li><strong>Export TikZ</strong> gives you LaTeX code to copy or download.</li></ol><p className="diagram-help">Double-click an object to edit its label. Delete removes a selection; ⌘/Ctrl Z undoes an edit.</p></div>}
 
           <section className="diagram-grid-settings"><h3>Canvas layout</h3><div className="diagram-field-pair">
-            {(['columns', 'rows'] as const).map((axis) => <label className="diagram-field" key={axis}>{axis === 'columns' ? 'Columns' : 'Rows'}<select aria-label={`Grid ${axis}`} value={diagram[axis]} onChange={(event) => resizeGrid(axis, Number(event.target.value))}>{Array.from({ length: 7 }, (_, i) => <option key={i} value={i + 2}>{i + 2}</option>)}</select></label>)}
+            {(['columns', 'rows'] as const).map((axis) => <label className="diagram-field" key={axis}>{axis === 'columns' ? 'Columns' : 'Rows'}<select aria-label={`Grid ${axis}`} value={diagram[axis]} onChange={(event) => resizeGrid(axis, Number(event.target.value))}>{Array.from({ length: 8 }, (_, i) => <option key={i} value={i + 1}>{i + 1}</option>)}</select></label>)}
           </div></section>
           <section className="diagram-outline"><h3>Objects <span>{diagram.nodes.length}</span></h3>{diagram.nodes.length ? diagram.nodes.map((node) => <button key={node.id} className={selectedNode?.id === node.id ? 'is-active' : ''} onClick={() => { changeTool('select'); setSelection({ kind: 'node', id: node.id }); }}><MathLabel label={node.label || '?'} /><span>{node.row + 1}, {node.column + 1}</span></button>) : <p className="diagram-help">Start with Add object or choose a template.</p>}</section>
           {!!labelErrors.length && <p className="diagram-field-error">Fix {labelErrors.length} invalid LaTeX {labelErrors.length === 1 ? 'label' : 'labels'} before exporting.</p>}

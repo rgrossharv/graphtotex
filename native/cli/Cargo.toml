@@ -1,0 +1,11 @@
+[package]
+name = "graphtotex-pdf"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+graphtotex-pdf-core = { path = "../core" }
+pdf-extract = { path = "../vendor/pdf-extract" }
+serde_json = "1"
+

@@ -1,0 +1,22 @@
+.pdf-tex-drop { display: flex; flex-direction: column; align-items: center; gap: 0.65rem; padding: 2rem 1rem; border: 1px dashed var(--border); border-radius: 6px; background: var(--surface-2); text-align: center; }
+.pdf-tex-drop.is-dragging { border-color: var(--accent); background: var(--chip-bg); }
+.pdf-tex-drop > span { color: var(--accent); font: 1.7rem Georgia, serif; }
+.pdf-tex-drop strong { margin-top: 0.4rem; font-size: 0.9rem; }
+.pdf-tex-drop p { margin: 0; color: var(--muted); font-size: 0.7rem; }
+.pdf-tex-drop input[hidden] { display: none; }
+.pdf-tex-filename { display: flex; justify-content: space-between; gap: 1rem; overflow-wrap: anywhere; font-size: 0.75rem; }
+.pdf-tex-filename span { flex-shrink: 0; color: var(--muted); }
+.pdf-tex-drop + .misc-field { margin-top: 1rem; }
+.pdf-tex-cli { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.75rem; }
+.pdf-tex-cli summary { cursor: pointer; }
+.pdf-tex-cli pre { padding: 0.7rem; background: var(--surface-2); white-space: pre-wrap; overflow-wrap: anywhere; font-size: 0.7rem; }
+.pdf-tex-downloads { display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.75rem; }
+.pdf-tex-downloads a { color: var(--accent); }
+.pdf-tex-downloads span { color: var(--muted); }
+.pdf-tex-progress { width: calc(100% - 2rem); margin: 1rem; accent-color: var(--accent); }
+.pdf-tex-stats { display: flex; flex-wrap: wrap; gap: 0.7rem; padding: 0.8rem 1rem; border-bottom: 1px solid var(--border); font-size: 0.7rem; color: var(--muted); }
+.pdf-tex-stats span:first-child { color: var(--text); font-weight: 600; }
+.pdf-tex-note { padding: 0 1rem; }
+.misc-workspace .pdf-tex-output { flex: 1; width: 100%; min-height: 240px; resize: none; border: 0; border-radius: 0; padding: 1rem; font-size: 0.7rem; }
+.pdf-tex-layout .tex-compilation-log li { margin: 0.5rem 0; }
+@media (max-width: 700px) { .misc-workspace .pdf-tex-output { min-height: 400px; } }

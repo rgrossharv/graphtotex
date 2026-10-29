@@ -1,0 +1,14 @@
+[
+  {"id":"inline-polynomial","formula":"x^{2}+2x+1=0","display":false},
+  {"id":"scripts","formula":"a_{i}^{2}+b_{j}^{3}=c_{k}","display":true},
+  {"id":"fraction","formula":"y=\\frac{x+1}{x-1}","display":true},
+  {"id":"nested-fraction","formula":"z=\\frac{1}{1+\\frac{1}{x}}","display":true},
+  {"id":"square-root","formula":"r=\\sqrt{x^{2}+y^{2}}","display":true},
+  {"id":"indexed-root","formula":"r=\\sqrt[3]{x+1}","display":true},
+  {"id":"greek-relations","formula":"\\alpha+\\beta=\\gamma\\leq\\pi","display":true},
+  {"id":"functions","formula":"\\sin(x)+\\cos(x)=\\log(y)","display":false},
+  {"id":"sum-limits","formula":"S=\\sum_{i=1}^{n}i^{2}","display":true},
+  {"id":"integral","formula":"I=\\int_{0}^{1}x^{2}\\,dx","display":true},
+  {"id":"matrix","formula":"A=\\begin{pmatrix}a&b\\\\c&d\\end{pmatrix}","display":true},
+  {"id":"aligned","formula":"\\begin{aligned}x+y&=3\\\\x-y&=1\\end{aligned}","display":true}
+]

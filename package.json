@@ -5,7 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build && node scripts/prerender.mjs",
+    "build": "node scripts/prepare-pdf-tools.mjs && tsc && vite build && node scripts/prerender.mjs",
+    "build:wasm": "node scripts/build-pdf-wasm.mjs",
+    "build:cli": "node scripts/build-pdf-cli.mjs",
+    "test:pdf": "node --test scripts/pdf-to-tex.test.mjs",
+    "test:pdf:browser": "node scripts/pdf-to-tex.browser.mjs",
+    "benchmark:collect": "python3 benchmarks/collect.py --max-pairs 300",
+    "benchmark:browser": "node benchmarks/browser.mjs",
     "test": "node --test scripts/*.test.mjs",
     "test:seo": "node --test scripts/seo.test.mjs",
     "test:calculator": "node --test scripts/calculator.test.mjs",
@@ -17,6 +23,7 @@
     "@citation-js/plugin-csl": "^0.9.0",
     "@citation-js/plugin-ris": "^0.9.0",
     "@cortex-js/compute-engine": "^0.154.0",
+    "fflate": "^0.8.3",
     "katex": "^0.16.11",
     "mathjs": "^14.2.1",
     "pdfjs-dist": "^4.10.38",
@@ -27,6 +34,7 @@
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
+    "playwright": "^1.64.1",
     "typescript": "^5.7.2",
     "vite": "^5.4.11"
   }

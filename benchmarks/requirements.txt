@@ -1,0 +1,4 @@
+PyMuPDF==1.26.7
+rapidfuzz==3.14.6
+Pillow==13.0.0
+pypandoc_binary==1.17

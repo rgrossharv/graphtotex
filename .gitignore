@@ -2,3 +2,9 @@ node_modules
 .DS_Store
 dist
 .vite
+.tools/
+native/target/
+public/downloads/
+public/vendor/pdf-to-tex/
+public/vendor/pdfjs/
+benchmarks/__pycache__/

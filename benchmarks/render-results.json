@@ -1,0 +1,239 @@
+{
+  "method": "One first three-page sample per repository/mode. MuPDF grayscale at 72 dpi, output resized to source page bounds; F1 of ink pixels below 220. Not an equation-correctness metric.",
+  "records": [
+    {
+      "id": "638b456e5c5e566e",
+      "repository": "sleepymalc/Notes",
+      "mode": "auto",
+      "input_pages": 3,
+      "missing_glyph_warnings": 0,
+      "status": "compiled",
+      "output_pages": 3,
+      "ink_overlap_f1": [
+        0.0,
+        0.16771444900503973,
+        0.07898456336779093
+      ],
+      "ink_overlap_f1_mean": 0.08223300412427689
+    },
+    {
+      "id": "638b456e5c5e566e",
+      "repository": "sleepymalc/Notes",
+      "mode": "editable",
+      "input_pages": 3,
+      "missing_glyph_warnings": 0,
+      "status": "compiled",
+      "output_pages": 3,
+      "ink_overlap_f1": [
+        0.0,
+        0.16771444900503973,
+        0.07898456336779093
+      ],
+      "ink_overlap_f1_mean": 0.08223300412427689
+    },
+    {
+      "id": "6e4f4b960511b615",
+      "repository": "pmichaillat/math-for-macro",
+      "mode": "auto",
+      "input_pages": 3,
+      "missing_glyph_warnings": 0,
+      "status": "compiled",
+      "output_pages": 3,
+      "ink_overlap_f1": [
+        0.016705564426974573,
+        0.97436337134528,
+        0.07817714316975764
+      ],
+      "ink_overlap_f1_mean": 0.3564153596473374
+    },
+    {
+      "id": "6e4f4b960511b615",
+      "repository": "pmichaillat/math-for-macro",
+      "mode": "editable",
+      "input_pages": 3,
+      "missing_glyph_warnings": 11,
+      "status": "compiled",
+      "output_pages": 3,
+      "ink_overlap_f1": [
+        0.016705564426974573,
+        0.09090909090909091,
+        0.07817714316975764
+      ],
+      "ink_overlap_f1_mean": 0.06193059950194104
+    },
+    {
+      "id": "60bdd5fc41863f0d",
+      "repository": "yanhan/mit-1801-ps-unofficial-sol",
+      "mode": "auto",
+      "input_pages": 3,
+      "missing_glyph_warnings": 0,
+      "status": "compiled",
+      "output_pages": 3,
+      "ink_overlap_f1": [
+        0.9687141945020248,
+        0.9635194118998391,
+        0.96607623636106
+      ],
+      "ink_overlap_f1_mean": 0.9661032809209746
+    },
+    {
+      "id": "60bdd5fc41863f0d",
+      "repository": "yanhan/mit-1801-ps-unofficial-sol",
+      "mode": "editable",
+      "input_pages": 3,
+      "missing_glyph_warnings": 21,
+      "status": "compiled",
+      "output_pages": 3,
+      "ink_overlap_f1": [
+        0.1221524238473391,
+        0.11738917519763076,
+        0.1256280683568724
+      ],
+      "ink_overlap_f1_mean": 0.12172322246728075
+    },
+    {
+      "id": "6c558c6bb911e0a3",
+      "repository": "Dreamaker203/math-lecture-notes",
+      "mode": "auto",
+      "input_pages": 3,
+      "missing_glyph_warnings": 0,
+      "status": "compiled",
+      "output_pages": 3,
+      "ink_overlap_f1": [
+        0.9952439792040659,
+        0.9953492918054685,
+        0.999060769305509
+      ],
+      "ink_overlap_f1_mean": 0.9965513467716811
+    },
+    {
+      "id": "6c558c6bb911e0a3",
+      "repository": "Dreamaker203/math-lecture-notes",
+      "mode": "editable",
+      "input_pages": 3,
+      "missing_glyph_warnings": 69,
+      "status": "compiled",
+      "output_pages": 3,
+      "ink_overlap_f1": [
+        0.017072300971739323,
+        0.026346191354968417,
+        0.02541665858248773
+      ],
+      "ink_overlap_f1_mean": 0.022945050303065158
+    },
+    {
+      "id": "9f02ef2c5ad6a085",
+      "repository": "vEnhance/web.evanchen.cc",
+      "mode": "auto",
+      "input_pages": 2,
+      "missing_glyph_warnings": 0,
+      "status": "compiled",
+      "output_pages": 2,
+      "ink_overlap_f1": [
+        0.9264928413455942,
+        0.9171903052064632
+      ],
+      "ink_overlap_f1_mean": 0.9218415732760287
+    },
+    {
+      "id": "9f02ef2c5ad6a085",
+      "repository": "vEnhance/web.evanchen.cc",
+      "mode": "editable",
+      "input_pages": 2,
+      "missing_glyph_warnings": 45,
+      "status": "compiled",
+      "output_pages": 2,
+      "ink_overlap_f1": [
+        0.08002429067845214,
+        0.05809354970680485
+      ],
+      "ink_overlap_f1_mean": 0.06905892019262849
+    },
+    {
+      "id": "661a907061e43074",
+      "repository": "ovega14/RealAnalysis_solutions",
+      "mode": "auto",
+      "input_pages": 3,
+      "missing_glyph_warnings": 0,
+      "status": "compiled",
+      "output_pages": 3,
+      "ink_overlap_f1": [
+        0.9765539405448835,
+        0.9658345221112696,
+        0.9385423100679432
+      ],
+      "ink_overlap_f1_mean": 0.9603102575746988
+    },
+    {
+      "id": "661a907061e43074",
+      "repository": "ovega14/RealAnalysis_solutions",
+      "mode": "editable",
+      "input_pages": 3,
+      "missing_glyph_warnings": 170,
+      "status": "compiled",
+      "output_pages": 3,
+      "ink_overlap_f1": [
+        0.030519389612207754,
+        0.029430625400789768,
+        0.022694210066918824
+      ],
+      "ink_overlap_f1_mean": 0.027548075026638783
+    },
+    {
+      "id": "d872a1ece2595a6e",
+      "repository": "ausdavoud/Logic-and-Set-Theory-Exercises",
+      "mode": "auto",
+      "input_pages": 3,
+      "missing_glyph_warnings": 0,
+      "status": "compiled",
+      "output_pages": 3,
+      "ink_overlap_f1": [
+        0.9935260291709509,
+        0.9787218926503499,
+        0.9505682596193346
+      ],
+      "ink_overlap_f1_mean": 0.9742720604802118
+    },
+    {
+      "id": "d872a1ece2595a6e",
+      "repository": "ausdavoud/Logic-and-Set-Theory-Exercises",
+      "mode": "editable",
+      "input_pages": 3,
+      "missing_glyph_warnings": 9553,
+      "status": "compiled",
+      "output_pages": 3,
+      "ink_overlap_f1": [
+        0.0029493220156098262,
+        0.020682219172711232,
+        0.027540900764323164
+      ],
+      "ink_overlap_f1_mean": 0.017057480650881408
+    },
+    {
+      "id": "289d41e850049e7d",
+      "repository": "Jad-srifi/regional-quant-circle",
+      "mode": "auto",
+      "input_pages": 1,
+      "missing_glyph_warnings": 3,
+      "status": "compiled",
+      "output_pages": 1,
+      "ink_overlap_f1": [
+        0.12616595199151232
+      ],
+      "ink_overlap_f1_mean": 0.12616595199151232
+    },
+    {
+      "id": "289d41e850049e7d",
+      "repository": "Jad-srifi/regional-quant-circle",
+      "mode": "editable",
+      "input_pages": 1,
+      "missing_glyph_warnings": 3,
+      "status": "compiled",
+      "output_pages": 1,
+      "ink_overlap_f1": [
+        0.12616595199151232
+      ],
+      "ink_overlap_f1_mean": 0.12616595199151232
+    }
+  ]
+}

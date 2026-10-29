@@ -35,8 +35,8 @@ export const PAGES: Record<Page, {
     path: '/misc/',
     label: 'Misc',
     title: 'TeX Calculator, Calculus & Matrix Tools | GraphToTeX',
-    description: 'Calculate derivatives, integrals, and matrices from TeX, or graph complex functions. Export LaTeX, compile TeX to PDF, and convert Beamer slides to HTML.',
-    features: ['Scientific calculator with TeX export', 'Derivatives, integrals, and multivariable calculus', 'Matrices and linear algebra', 'Complex function graphing with domain coloring', 'TeX autocomplete and live math preview', 'TeX to PDF and HTML tools']
+    description: 'Calculate derivatives, integrals, and matrices from TeX, or graph complex functions. Convert PDF to LaTeX locally, compile TeX to PDF, and export Beamer to HTML.',
+    features: ['Scientific calculator with TeX export', 'Derivatives, integrals, and multivariable calculus', 'Matrices and linear algebra', 'Complex function graphing with domain coloring', 'TeX autocomplete and live math preview', 'TeX to PDF and HTML tools', 'Local PDF to LaTeX with Rust and WebAssembly', 'Downloadable native PDF to TeX CLI']
   }
 };
 

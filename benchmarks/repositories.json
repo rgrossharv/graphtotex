@@ -1,0 +1,110 @@
+{
+  "repositories": [
+    {
+      "repository": "sleepymalc/Notes",
+      "commit": "74954f283b1a4afd00dc3884f8af4c1dfc45530f",
+      "paired_candidates": 12,
+      "selected": 12,
+      "license_paths": []
+    },
+    {
+      "repository": "zeramorphic/cambridge-maths-notes",
+      "commit": "43108176aac57b93bc0d4ca7dc837ce0f1de93d0",
+      "paired_candidates": 0,
+      "selected": 0,
+      "license_paths": [
+        "LICENSE.txt"
+      ]
+    },
+    {
+      "repository": "sreahw/schuller-geometric",
+      "commit": "d324cd4b94d424a2734aea4b13bc3c9139cb8f90",
+      "paired_candidates": 0,
+      "selected": 0,
+      "license_paths": []
+    },
+    {
+      "repository": "Name-Kompsky/tripos",
+      "commit": "127e9fccea5732677ef237213d73a98fdb8d0ca0",
+      "paired_candidates": 0,
+      "selected": 0,
+      "license_paths": [
+        "LICENSE.txt"
+      ]
+    },
+    {
+      "repository": "pmichaillat/math-for-macro",
+      "commit": "8c34c801beaa225b1846c6064e64fd1b71a2f278",
+      "paired_candidates": 7,
+      "selected": 7,
+      "license_paths": [
+        "LICENSE.md"
+      ]
+    },
+    {
+      "repository": "yanhan/mit-1801-ps-unofficial-sol",
+      "commit": "e285de85221593c349fc7f9147edd14c5687a3e0",
+      "paired_candidates": 8,
+      "selected": 8,
+      "license_paths": []
+    },
+    {
+      "repository": "Dreamaker203/math-lecture-notes",
+      "commit": "b89f6207bc5b84f501837ea6da3899799a8787d8",
+      "paired_candidates": 142,
+      "selected": 142,
+      "license_paths": []
+    },
+    {
+      "repository": "vEnhance/web.evanchen.cc",
+      "commit": "d818666f02052ad1043c24556a2045a654f10735",
+      "paired_candidates": 5,
+      "selected": 5,
+      "license_paths": [
+        "LICENSE"
+      ]
+    },
+    {
+      "repository": "ovega14/RealAnalysis_solutions",
+      "commit": "71474ba94ec14ff74abf490bde38ab4f283cd2cd",
+      "paired_candidates": 14,
+      "selected": 14,
+      "license_paths": []
+    },
+    {
+      "repository": "ausdavoud/Logic-and-Set-Theory-Exercises",
+      "commit": "df31861855ab3701bbf49a1e069d1277f6dddb9e",
+      "paired_candidates": 5,
+      "selected": 5,
+      "license_paths": []
+    },
+    {
+      "repository": "Jad-srifi/regional-quant-circle",
+      "commit": "b152abdf0980a8e1f615ff3f28b93327d25be420",
+      "paired_candidates": 12,
+      "selected": 12,
+      "license_paths": [
+        "LICENSE"
+      ]
+    },
+    {
+      "repository": "jgm/pandoc",
+      "commit": "8605c4aa6eed29e4f9e47b104e9f5d6bbe55c79b",
+      "paired_candidates": 0,
+      "selected": 0,
+      "license_paths": [
+        "COPYING.md"
+      ]
+    },
+    {
+      "repository": "w3c/epub-tests",
+      "commit": "54092b4233253e9aac80e93ec4782b380b4b3403",
+      "paired_candidates": 0,
+      "selected": 0,
+      "license_paths": [
+        "LICENSE.md"
+      ]
+    }
+  ],
+  "discovery_failures": []
+}

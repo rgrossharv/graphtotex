@@ -2,7 +2,15 @@
 
 2D and 3D graphing and commutative diagrams with TikZ/TikZ-CD export, plus scientific, calculus, linear algebra, and TeX document tools in Misc. A citation workspace is retained in the source but is not enabled on the website yet.
 
-Run locally with `npm install` and `npm run dev`. Build with `npm run build`.
+Run locally with `npm install` and `npm run dev`. Before building, set up Rust and run `npm run build:wasm` (see [native/README.md](native/README.md)). Build with `npm run build`.
+
+Misc includes **PDF → TeX**: drag a PDF onto the tool for local conversion in a worker using PDF.js and a shared Rust/WebAssembly layout engine. Automatic mode reconstructs simple text pages and preserves complex pages from the input PDF. Editable mode extracts text only; visual mode preserves selected original pages. Download `.tex` or a ZIP containing the complete LuaLaTeX project and conversion notes. Scans need OCR for editable text, and original LaTeX, equation syntax, and document structure cannot in general be recovered. The browser supports files up to 250 MB and password entry for protected PDFs.
+
+`npm run build:cli` builds and packages the native Rust CLI for the current platform. The website's CLI download section lists the archives actually present in its build. The deployment workflow builds Linux x64, Windows x64, and macOS Apple Silicon/Intel binaries, plus a Rust source archive. Usage: `graphtotex-pdf input.pdf -o output --mode auto --pages 1-3,5`. See [native/README.md](native/README.md) for builds, output modes, limitations, and memory use. Run `npm run test:pdf` after building WASM and packaging the CLI.
+
+The same tool also converts DOCX, EPUB, ODT, HTML, Markdown, and UTF-8 text directly to TeX, without a PDF intermediate. Export Google Docs as Microsoft Word (.docx), then drop that file into the tool. Direct conversion uses the shared Rust engine in both WASM and the CLI, retaining supported document structure and OMML/MathML equations. Numbering, merged tables, styles, images, and unsupported math constructs may need review. Legacy binary `.doc`, RTF, and DRM-protected EPUB content are unsupported.
+
+A reproducible public benchmark uses paired math sources/PDFs plus document-format fixtures. See [benchmarks/REPORT.md](benchmarks/REPORT.md) for measured results and [benchmarks/README.md](benchmarks/README.md) for methodology, manifests, checksums, and reproduction. Automatic PDF preservation is reported separately from editable source recovery.
 
 The production build prerenders the React interface into real HTML for `/`, `/3d/`, `/diagram/`, and `/misc/`, including a distinct title, description, canonical URL, social metadata, and structured data for each workspace. JavaScript mounts the interactive app as before, so local diagram drafts and responsive behavior are preserved. Canvas fallback text and the diagram description also provide text alternatives without changing the visual layout.
 

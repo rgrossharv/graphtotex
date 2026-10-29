@@ -3,6 +3,7 @@ import katex from 'katex';
 import { CALCULATOR_EXAMPLES, OPERATIONS, TEX_COMPLETIONS, type CalculationRequest, type CalculationResult, type CalculatorMode } from '../lib/calculator';
 import TexTools from './TexTools';
 import ComplexCalculator from './ComplexCalculator';
+import PdfToTex from './PdfToTex';
 import './MiscWorkspace.css';
 
 export function MathPreview({ latex, display = true }: { latex: string; display?: boolean }) {
@@ -29,7 +30,7 @@ const KEYPAD = [
 ];
 
 export default function MiscWorkspace() {
-  const [tool, setTool] = useState<'calculator' | 'complex' | 'pdf' | 'html'>('calculator');
+  const [tool, setTool] = useState<'calculator' | 'complex' | 'pdf' | 'html' | 'decompile'>('calculator');
   const [request, setRequest] = useState<CalculationRequest>(INITIAL);
   const [result, setResult] = useState<CalculationResult | null>(null);
   const [busy, setBusy] = useState(false);
@@ -117,10 +118,10 @@ export default function MiscWorkspace() {
   return (
     <main className="misc-workspace">
       <div className="misc-toolbar" role="navigation" aria-label="Misc tools">
-        {([{ value: 'calculator', label: 'Calculator' }, { value: 'complex', label: 'Complex graph' }, { value: 'pdf', label: 'TeX → PDF' }, { value: 'html', label: 'TeX → HTML' }] as const).map((item) => <button key={item.value} className={tool === item.value ? 'is-active' : ''} aria-pressed={tool === item.value} onClick={() => setTool(item.value)}>{item.label}</button>)}
+        {([{ value: 'calculator', label: 'Calculator' }, { value: 'complex', label: 'Complex graph' }, { value: 'decompile', label: 'PDF → TeX' }, { value: 'pdf', label: 'TeX → PDF' }, { value: 'html', label: 'TeX → HTML' }] as const).map((item) => <button key={item.value} className={tool === item.value ? 'is-active' : ''} aria-pressed={tool === item.value} onClick={() => setTool(item.value)}>{item.label}</button>)}
         <span>TeX in. Math out.</span>
       </div>
-      {tool === 'complex' ? <ComplexCalculator /> : tool !== 'calculator' ? <TexTools kind={tool} /> : <div className="misc-calculator">
+      {tool === 'decompile' ? <PdfToTex /> : tool === 'complex' ? <ComplexCalculator /> : tool !== 'calculator' ? <TexTools kind={tool} /> : <div className="misc-calculator">
         <section className="misc-input-panel" aria-label="Calculator input">
           <div className="misc-panel-heading"><h2>Misc calculator</h2><p>Scientific, calculus I–III, and linear algebra</p></div>
           <div className="misc-input-content">
